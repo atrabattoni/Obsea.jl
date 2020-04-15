@@ -3,7 +3,7 @@ module Obsea
 ## Structures
 
 export State, EmptyState, Trajectory, Metadata, Particle, Parameters
-export qk, logfk
+export move, logfk
 
 
 struct State
@@ -41,7 +41,7 @@ end
 
 ## Motion Model
 
-function qk(state::State, params::Parameters)
+function move(state::State, params::Parameters)
     q, T = params.q, params.T
     ax = q * randn()
     ay = q * randn()
@@ -54,7 +54,7 @@ function qk(state::State, params::Parameters)
     State(model, frequency, x, y, vx, vy)
 end
 
-function qk(state:EmptyState, params::Parameters)
+function move(state:EmptyState, params::Parameters)
     # TODO
 end
 
