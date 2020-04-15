@@ -2,7 +2,7 @@ module Obsea
 
 ## Structures
 
-export State, EmptyState, Trajectory, Metadata, Particle
+export State, EmptyState, Trajectory, Metadata, Particle, Parameters
 export qk, logfk
 
 struct State
@@ -25,6 +25,13 @@ end
 struct Particle
     trajectory::Trajectory
     metadata::Metadata
+end
+
+struct Parameters
+    T::Float64
+    q::Float64
+    ps::Float64
+    pb::Float64
 end
 
 ## Motion Model

@@ -30,6 +30,13 @@ using Test
         particle.metadata.weight *= 2.0
         @test particle.metadata.weight === 0.2
     end
+    @testset "Parameters" begin
+        parameters = Parameters(1.0, 0.1, 0.97, 0.03)
+        @test parameters.T === 1.0
+        @test parameters.q === 0.1
+        @test parameters.ps === 0.97
+        @test parameters.pb === 0.03
+    end
 end
 
 @testset "Motion Model" begin
