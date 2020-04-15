@@ -54,7 +54,7 @@ function move(state::State, params::Parameters)
     State(model, frequency, x, y, vx, vy)
 end
 
-function move(state:EmptyState, params::Parameters)
+function move(state::EmptyState, params::Parameters)
     # TODO
 end
 
