@@ -2,7 +2,8 @@ module Obsea
 
 ## Structures
 
-export State, Trajectory, Metadata, Particle, qk
+export State, Trajectory, Metadata, Particle
+export qk, logfk
 
 struct State
     model::Int64
@@ -36,6 +37,12 @@ function qk(state::State, q::Float64, T::Float64)
     vx = state.vx + ax * T
     vy = state.vy + ay * T
     State(model, frequency, x, y, vx, vy)
+end
+
+function logfk(state::State, prevstate::State, q::Float64, T::Float64)
+    dvx = state.vx - prevstate.vx
+    dvy = state.vy - prevstate.vy
+    -(dvx^2 + dvy^2) / (q * T)^2  # TODO
 end
 
 end # module
