@@ -5,6 +5,7 @@ module Obsea
 export State, EmptyState, Trajectory, Metadata, Particle, Parameters
 export qk, logfk
 
+
 struct State
     model::Int64
     frequency::Float64
@@ -14,18 +15,22 @@ struct State
     vy::Float64
 end
 
+
 struct EmptyState end
 
 Trajectory = Array{Union{State,EmptyState},1}
+
 
 mutable struct Metadata
     weight::Float64
 end
 
+
 struct Particle
     trajectory::Trajectory
     metadata::Metadata
 end
+
 
 struct Parameters
     T::Float64
@@ -48,6 +53,11 @@ function qk(state::State, params::Parameters)
     vy = state.vy + ay * T
     State(model, frequency, x, y, vx, vy)
 end
+
+function qk(state:EmptyState, params::Parameters)
+    # TODO
+end
+
 
 function logfk(state::State, prevstate::State, params::Parameters)
     q, T, ps = params.q, params.T, params.ps
