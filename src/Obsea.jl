@@ -36,7 +36,8 @@ end
 
 ## Motion Model
 
-function qk(state::State, q::Float64, T::Float64)
+function qk(state::State, params::Parameters)
+    q, T = params.q, params.T
     ax = q * randn()
     ay = q * randn()
     model = state.model
@@ -48,7 +49,8 @@ function qk(state::State, q::Float64, T::Float64)
     State(model, frequency, x, y, vx, vy)
 end
 
-function logfk(state::State, prevstate::State, q::Float64, T::Float64)
+function logfk(state::State, prevstate::State, params::Parameters)
+    q, T = params.q, params.T
     dvx = state.vx - prevstate.vx
     dvy = state.vy - prevstate.vy
     -(dvx^2 + dvy^2) / (q * T)^2  # TODO
