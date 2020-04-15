@@ -42,10 +42,18 @@ end
 
 @testset "Motion Model" begin
     state = State(1, 2.0, 3.0, 4.0, 5.0, 6.0)
-    params = Parameters(1.0, 0.0, 0.97, 0.03)
-    @test qk(state, params) == State(1, 2.0, 8.0, 10.0, 5.0, 6.0)
-    params = Parameters(1.0, 0.1, 0.97, 0.03)
-    @test logfk(state, state, params) === -0.0
+    ∅ = EmptyState()
+    @testset "qk" begin
+        params = Parameters(1.0, 0.0, 0.97, 0.03)
+        @test qk(state, params) == State(1, 2.0, 8.0, 10.0, 5.0, 6.0)
+    end
+    @testset "logfk" begin
+        params = Parameters(1.0, 0.1, 0.97, 0.03)
+        @test logfk(state, state, params) === log(params.ps)  # TODO
+        @test logfk(∅, state, params) === log(1.0 - params.ps)
+        @test logfk(state, ∅, params) === log(params.pb)
+        @test logfk(∅, ∅, params) === log(1.0 - params.pb)
+    end
 end
 
 end # testset

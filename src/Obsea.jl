@@ -50,10 +50,25 @@ function qk(state::State, params::Parameters)
 end
 
 function logfk(state::State, prevstate::State, params::Parameters)
-    q, T = params.q, params.T
+    q, T, ps = params.q, params.T, params.ps
     dvx = state.vx - prevstate.vx
     dvy = state.vy - prevstate.vy
-    -(dvx^2 + dvy^2) / (q * T)^2  # TODO
+    log(ps) - (dvx^2 + dvy^2) / (q * T)^2  # TODO
+end
+
+function logfk(state::EmptyState, prevstate::State, params::Parameters)
+    ps = params.ps
+    log(1.0 - ps)
+end
+
+function logfk(state::State, prevstate::EmptyState, params::Parameters)
+    pb = params.pb
+    log(pb)
+end
+
+function logfk(state::EmptyState, prevstate::EmptyState, params::Parameters)
+    pb = params.pb
+    log(1.0 - pb)
 end
 
 end # module
