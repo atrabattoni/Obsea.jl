@@ -23,4 +23,5 @@ using Test
     @test particle.metadata === metadata
     particle.metadata.weight *= 2.0
     @test particle.metadata.weight === 0.2
+
 end

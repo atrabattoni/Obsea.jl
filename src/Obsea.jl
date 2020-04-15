@@ -11,7 +11,7 @@ struct State
     vy::Float64
 end
 
-Trajectory = Array{State, 1}
+Trajectory = Array{State,1}
 
 mutable struct Metadata
     weight::Float64
@@ -22,4 +22,4 @@ struct Particle
     metadata::Metadata
 end
 
-end # module
+end
