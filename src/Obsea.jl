@@ -1,6 +1,6 @@
 module Obsea
 
-export State, Metadata, Particle
+export State, Trajectory, Metadata, Particle
 
 struct State
     model::Int64
@@ -11,12 +11,14 @@ struct State
     vy::Float64
 end
 
+Trajectory = Array{State, 1}
+
 mutable struct Metadata
     weight::Float64
 end
 
 struct Particle
-    trajectory::Array{State, 1}
+    trajectory::Trajectory
     metadata::Metadata
 end
 
