@@ -2,7 +2,7 @@ module Obsea
 
 ## Structures
 
-export State, Trajectory, Metadata, Particle
+export State, EmptyState, Trajectory, Metadata, Particle
 export qk, logfk
 
 struct State
@@ -14,7 +14,9 @@ struct State
     vy::Float64
 end
 
-Trajectory = Array{State,1}
+struct EmptyState end
+
+Trajectory = Array{Union{State,EmptyState},1}
 
 mutable struct Metadata
     weight::Float64

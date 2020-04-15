@@ -5,9 +5,6 @@ using Test
 
 @testset "Structures" begin
     state = State(1, 2.0, 3.0, 4.0, 5.0, 6.0)
-    trajectory = Trajectory([state, state])
-    metadata = Metadata(0.1)
-    particle = Particle(trajectory, metadata)
     @testset "State" begin
         @test state.model === 1
         @test state.frequency === 2.0
@@ -16,13 +13,17 @@ using Test
         @test state.vx === 5.0
         @test state.vy === 6.0
     end
+    ∅ = EmptyState()
+    trajectory = Trajectory([state, ∅])
     @testset "Trajectory" begin
-        @test trajectory == [state, state]
+        @test trajectory == [state, ∅]
         @test trajectory[1] === state
     end
+    metadata = Metadata(0.1)
     @testset "Metadata" begin
         @test metadata.weight === 0.1
     end
+    particle = Particle(trajectory, metadata)
     @testset "Particle" begin
         @test particle.trajectory === trajectory
         @test particle.metadata === metadata
