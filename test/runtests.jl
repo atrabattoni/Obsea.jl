@@ -10,8 +10,10 @@ using Test
     @test state.vx === 5.0
     @test state.vy === 6.0
     trajectory = [state]
-    particle = Particle(trajectory, -1.0, 0.5)
+    metadata = Metadata(0.1)
+    particle = Particle(trajectory, metadata)
     @test particle.trajectory === trajectory
-    @test particle.logLikelihood === -1.0
-    @test particle.weight === 0.5
+    @test particle.metadata.weight === 0.1
+    particle.metadata.weight *= 2.0
+    @test particle.metadata.weight === 0.2
 end
