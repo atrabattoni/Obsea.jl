@@ -4,7 +4,6 @@ using Test
 @testset "Obsea.jl" begin
 
 @testset "Structures" begin
-    params =
     state = State(1, 2.0, 3.0, 4.0, 5.0, 6.0)
     @testset "State" begin
         @test state.model === 1
