@@ -1,7 +1,9 @@
 using Obsea
 using Test
 
-@testset "State and Particle structures" begin
+@testset "Obsea.jl" begin
+
+@testset "State, Trajectory, Metadata and Particle structures" begin
 
     state = State(1, 2.0, 3.0, 4.0, 5.0, 6.0)
     @test state.model === 1
@@ -25,3 +27,10 @@ using Test
     @test particle.metadata.weight === 0.2
 
 end
+
+@testset "Motion Model" begin
+    state = State(1, 2.0, 3.0, 4.0, 5.0, 6.0)
+    @test qk(state, 0.0, 1.0) == State(1, 2.0, 8.0, 10.0, 5.0, 6.0)
+end
+
+end # testset
