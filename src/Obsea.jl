@@ -2,12 +2,12 @@ module Obsea
 
 using Interpolations
 
-export State, EmptyState, Trajectory, Metadata, Particle, Parameters, Grid, Scan
-export move, logf, logl
+export State, EmptyState, Trajectory, Metadata, Particle, Parameters
+export Grid, Scan, logl
+export transition, move, birth, logf
 
 include("particle.jl")
-include("scan.jl")
-include("move.jl")
-include("logf.jl")
+include("update.jl")
+include("predict.jl")
 
 end # module
