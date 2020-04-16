@@ -1,5 +1,7 @@
 module Obsea
 
+using Interpolations
+
 export State, EmptyState, Trajectory, Metadata, Particle, Parameters
 export move, logfk
 
