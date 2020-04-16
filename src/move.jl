@@ -1,3 +1,21 @@
+function transition(state::State, scan::Scan, params::Parameters)
+    if rand() < params.ps
+        return move(state::State, params::Parameters)
+    else
+        return EmptyState()
+    end
+end
+
+
+function transition(state::EmptyState, scan::Scan, params::Parameters)
+    if rand() < params.pb
+        return birth(scan::Scan, params::Parameters)
+    else
+        return EmptyState()
+    end
+end
+
+
 function move(state::State, params::Parameters)
     q, T = params.q, params.T
     ax = q * randn()
@@ -11,6 +29,7 @@ function move(state::State, params::Parameters)
     State(model, frequency, x, y, vx, vy)
 end
 
-function move(state::EmptyState, params::Parameters)
-    # TODO
+
+function birth(scan::Scan, params::Parameters)
+    return nothing
 end
