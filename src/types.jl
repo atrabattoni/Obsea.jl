@@ -30,3 +30,16 @@ struct Parameters
     ps::Float64
     pb::Float64
 end
+
+
+struct Grid
+    rrange::AbstractRange
+    arange::AbstractRange
+    frange::AbstractRange  
+end
+
+
+struct Scan
+    yr::Array{Float64,1}
+    ya::Array{Float64,3}
+end
