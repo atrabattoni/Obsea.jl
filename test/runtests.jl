@@ -5,4 +5,5 @@ using Test
     include("particle_tests.jl")
     include("predict_tests.jl")
     include("update_tests.jl")
+    include("resample_tests.jl")
 end
