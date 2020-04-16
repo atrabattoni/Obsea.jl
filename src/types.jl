@@ -53,10 +53,10 @@ struct Scan
                 NoInterp(),
             ),
         )
+        itp_r = extrapolate(itp_r, 1.0)
+        itp_fam = extrapolate(itp_fam, (1.0, Periodic(), Throw()))
         itp_r = scale(itp_r, grid.range_r)
         itp_fam = scale(itp_fam, grid.range_f, grid.range_a, grid.range_m)
-        # itp_r = extrapolate(itp_r, 1.0)
-        # itp_fam = extrapolate(itp_fam, (1.0, Periodic(), Throw()))
         new(itp_r, itp_fam)
     end
 end
