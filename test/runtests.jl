@@ -36,17 +36,18 @@ using Test
             @test particle.metadata.weight === 0.2
         end
         @testset "Parameters" begin
-            params = Parameters(1.0, 0.1, 0.97, 0.03)
+            params = Parameters(1.0, 0.1, 0.97, 0.03, 0.5)
             @test params.T === 1.0
             @test params.q === 0.1
             @test params.ps === 0.97
             @test params.pb === 0.03
+            @test params.pd === 0.5
         end
 
         @testset "Grid" begin
             grid = Grid(
                 (0.0:1000.0:30000),
-                range(0.0, 25.0, length=513),
+                range(0.0, 25.0, length = 513),
                 (0.0:5.0:360),
                 (1:2),
             )
@@ -58,14 +59,30 @@ using Test
         end
         @testset "Scan" begin
             grid = Grid(
-                range(0.0, 1000.0, length=5),
-                range(0.0, 10.0, length=7),
-                range(0.0, 360.0, length=9),
+                range(0.0, 1000.0, length = 5),
+                range(0.0, 10.0, length = 7),
+                range(0.0, 360.0, length = 9),
                 (1:2),
             )
             scan = Scan(ones(5), ones(7, 9, 2), grid)
             @test scan.itp_r(500.0) ≈ 1.0
             @test scan.itp_fam(5.0, 120.0, 1) ≈ 1.0
+        end
+        @testset "logl" begin
+            grid = Grid(
+                range(0.0, 1000.0, length = 5),
+                range(0.0, 10.0, length = 7),
+                range(0.0, 2π, length = 9),
+                (1:2),
+            )
+            scan = Scan(ones(5), ones(7, 9, 2), grid)
+            ∅ = EmptyState()
+            params = Parameters(1.0, 0.0, 0.97, 0.03, 0.5)
+            @test logl(scan, ∅) == 0.0
+            state = State(1, 5.0, 1000.0, 1000.0, 0.0, 0.0)
+            @test abs(logl(scan, state, params)) < 1e-15
+            state = State(2, 5.0, 1000.0, 1000.0, 0.0, 0.0)
+            @test abs(logl(scan, state, params)) < 1e-15
         end
 
     end
@@ -74,17 +91,19 @@ using Test
         @testset "move" begin
             state = State(1, 2.0, 3.0, 4.0, 5.0, 6.0)
             ∅ = EmptyState()
-            params = Parameters(1.0, 0.0, 0.97, 0.03)
+            params = Parameters(1.0, 0.0, 0.97, 0.03, 0.5)
             @test move(state, params) == State(1, 2.0, 8.0, 10.0, 5.0, 6.0)
         end
-        @testset "logfk" begin
+        @testset "logf" begin
             state = State(1, 2.0, 3.0, 4.0, 5.0, 6.0)
             ∅ = EmptyState()
-            params = Parameters(1.0, 0.1, 0.97, 0.03)
-            @test logfk(state, state, params) === log(params.ps)  # TODO
-            @test logfk(∅, state, params) === log(1.0 - params.ps)
-            @test logfk(state, ∅, params) === log(params.pb)
-            @test logfk(∅, ∅, params) === log(1.0 - params.pb)
+            params = Parameters(1.0, 0.1, 0.97, 0.03, 0.5)
+            state = State(1, 2.0, 3.0, 4.0, 5.0, 6.0)
+            ∅ = EmptyState()
+            @test logf(state, state, params) === log(params.ps)  # TODO
+            @test logf(∅, state, params) === log(1.0 - params.ps)
+            @test logf(state, ∅, params) === log(params.pb)
+            @test logf(∅, ∅, params) === log(1.0 - params.pb)
         end
     end
 

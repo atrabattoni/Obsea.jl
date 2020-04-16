@@ -26,3 +26,21 @@ struct Scan
         new(itp_r, itp_fam)
     end
 end
+
+
+function logl(scan::Scan, state::State, params::Parameters)
+    pd = params.pd
+    r = sqrt(state.x^2 + state.y^2)
+    f = state.frequency
+    a = atan(state.x, state.y)
+    if state.model == 1
+        return log(scan.itp_r(r) * scan.itp_fam(f, a, 1))
+    elseif state.model == 2
+        return log((1.0 - pd) + pd * scan.itp_r(r) * scan.itp_fam(f, a, 2))
+    end
+end
+
+
+function logl(scan::Scan, state::EmptyState)
+    0.0
+end

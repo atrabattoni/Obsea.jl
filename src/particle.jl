@@ -29,4 +29,5 @@ struct Parameters
     q::Float64
     ps::Float64
     pb::Float64
+    pd::Float64
 end
