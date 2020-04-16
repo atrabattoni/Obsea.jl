@@ -46,18 +46,26 @@ using Test
         @testset "Grid" begin
             grid = Grid(
                 (0.0:1000.0:30000),
-                (0.0:5.0:360)[1:end-1],
                 range(0.0, 25.0, length=513),
+                (0.0:5.0:360),
+                (1:2),
             )
-            @test convert(Float64, grid.rrange.step) == 1000.0
-            @test grid.arange[end] === 355.0
-            @test grid.frange.len === 513
-            @test convert(Float64, grid.frange.step) == 25.0 / 512
+            @test convert(Float64, grid.range_r.step) == 1000.0
+            @test grid.range_f.len === 513
+            @test convert(Float64, grid.range_f.step) == 25.0 / 512
+            @test grid.range_a[end] === 360.0
+            @test collect(grid.range_m) == [1, 2]
         end
         @testset "Scan" begin
-            scan = Scan(ones(5), ones(4, 3, 2))
-            @test scan.yr == ones(5)
-            @test scan.ya == ones(4, 3, 2)
+            grid = Grid(
+                range(0.0, 1000.0, length=5),
+                range(0.0, 10.0, length=7),
+                range(0.0, 360.0, length=9),
+                (1:2),
+            )
+            scan = Scan(ones(5), ones(7, 9, 2), grid)
+            @test scan.itp_r(500.0) ≈ 1.0
+            @test scan.itp_fam(5.0, 120.0, 1) ≈ 1.0
         end
 
     end
