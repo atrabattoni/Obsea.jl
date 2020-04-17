@@ -10,7 +10,7 @@ end
 
 function transition(state::State, scan::Scan, params::Parameters)
     if rand() < params.ps
-        return move(state::State, params::Parameters)
+        return move(state, params)
     else
         return EmptyState()
     end
@@ -18,7 +18,7 @@ end
 
 function transition(state::EmptyState, scan::Scan, params::Parameters)
     if rand() < params.pb
-        return birth(scan::Scan, params::Parameters)
+        return birth(scan, params)
     else
         return EmptyState()
     end
