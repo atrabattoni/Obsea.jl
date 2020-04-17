@@ -12,7 +12,7 @@ export State,
     Cloud,
     Parameters
 export Grid, Scan, update!, logl
-export argsample
+export argsample, resample
 export predict!, transition, move, birth, logf
 
 include("particle.jl")

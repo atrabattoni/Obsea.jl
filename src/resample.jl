@@ -13,3 +13,16 @@ function argsample(w, N)
     end
     out
 end
+
+
+function resample(cloud)
+    w = [particle.metadata.weight for particle ∈ cloud]
+    idx = argsample(w, length(cloud))
+    out = Cloud()
+    for i ∈ idx
+        particle = deepcopy(cloud[i])
+        particle.metadata.weight = 1 / length(cloud)
+        push!(out, particle)
+    end
+    out
+end
