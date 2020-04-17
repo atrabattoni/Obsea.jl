@@ -42,5 +42,5 @@ struct Parameters
 end
 
 function init(N)
-    cloud = Cloud([Particle(Trajectory(), Metadata(0.0)) for i = 1:N])
+    cloud = Cloud([Particle(Trajectory(), Metadata(1 / N)) for i = 1:N])
 end
