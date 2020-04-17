@@ -11,6 +11,10 @@
         ones(length(grid.range_f), length(grid.range_a), 2),
         grid,
     )
+    ∅ = EmptyState()
+    ship = ShipState(5.0, 1000.0, 1000.0, 0.0, 0.0)
+    whale = WhaleState(5.0, 1000.0, 1000.0, 0.0, 0.0)
+    params = Parameters(1.0, 0.0, 0.97, 0.03, 0.5)
 
     @testset "Grid" begin
         @test convert(Float64, grid.range_r.step) == 100.0
@@ -26,13 +30,19 @@
     end
 
     @testset "logl" begin
-        ∅ = EmptyState()
-        params = Parameters(1.0, 0.0, 0.97, 0.03, 0.5)
         @test logl(scan, ∅) == 0.0
-        state = ShipState(5.0, 1000.0, 1000.0, 0.0, 0.0)
-        @test abs(logl(scan, state, params)) < 1e-15
-        state = WhaleState(5.0, 1000.0, 1000.0, 0.0, 0.0)
-        @test abs(logl(scan, state, params)) < 1e-15
+        @test abs(logl(scan, ship, params)) < 1e-15
+        @test abs(logl(scan, whale, params)) < 1e-15
+    end
+
+    @testset "update" begin
+        metadata = Metadata(1.0)
+        trajectory = Trajectory([ship])
+        particle = Particle(trajectory, metadata)
+        cloud = Cloud([particle])
+        update!(cloud, scan, params)
+        @test particle.metadata.weight ≈ 1.0
+
     end
 
 end

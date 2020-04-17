@@ -11,7 +11,7 @@ export State,
     Particle,
     Cloud,
     Parameters
-export Grid, Scan, logl
+export Grid, Scan, update!, logl
 export argsample
 export predict!, transition, move, birth, logf
 

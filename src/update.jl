@@ -28,6 +28,14 @@ struct Scan
 end
 
 
+function update!(cloud::Cloud, scan::Scan, params::Parameters)
+    for particle ∈ cloud
+        particle.metadata.weight *=
+            exp(logl(scan, particle.trajectory[end], params))
+    end
+end
+
+
 function logl(scan::Scan, state::ShipState, params::Parameters)
     pd = params.pd
     r = sqrt(state.x^2 + state.y^2)
