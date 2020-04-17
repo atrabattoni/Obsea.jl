@@ -31,7 +31,7 @@ struct Particle
     metadata::Metadata
 end
 
-const Cloud = Vector{Particle} 
+const Cloud = Vector{Particle}
 
 struct Parameters
     T::Float64
@@ -39,4 +39,8 @@ struct Parameters
     ps::Float64
     pb::Float64
     pd::Float64
+end
+
+function init(N)
+    cloud = Cloud([Particle(Trajectory(), Metadata(0.0)) for i = 1:N])
 end

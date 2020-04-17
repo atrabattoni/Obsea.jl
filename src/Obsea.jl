@@ -10,6 +10,7 @@ export State,
     Metadata,
     Particle,
     Cloud,
+    init,
     Parameters
 export Grid, Scan, update!, logl
 export argsample, resample

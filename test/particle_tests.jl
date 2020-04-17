@@ -36,6 +36,13 @@
         @test cloud[1] == particle
     end
 
+    @testset "init" begin
+        cloud = init(10)
+        @test length(cloud) === 10
+        @test cloud[1].trajectory == Trajectory()
+        @test cloud[1].metadata.weight == 1/10
+    end
+
     @testset "Parameters" begin
         @test params.T === 1.0
         @test params.q === 0.1
