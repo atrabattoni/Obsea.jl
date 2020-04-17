@@ -39,7 +39,27 @@ end
 
 
 function birth(scan::Scan, params::Parameters)
-    return nothing
+    grid = params.grid
+    idx_r = searchsortedfirst(scan.cdf_r, rand(), lt = <=)
+    idx_fam = searchsortedfirst(scan.cdf_fam, rand(), lt = <=)
+    cidx_fam = CartesianIndex((
+        length(grid.range_f),
+        length(grid.range_a),
+        length(grid.range_m),
+    ))
+    r = grid.range_r[idx_r]
+    f = grid.range_f[cidx_fam[1]]
+    a = grid.range_a[cidx_fam[2]]
+    m = cidx_fam[3]
+    x = r * sin(a)
+    y = r * cos(a)
+    vx = 10.0 * rand()
+    vy = 10.0 * rand()
+    if m == 1
+        return ShipState(f, x, y, vx, vy)
+    elseif m == 2
+        return WhaleState(f, x, y, vx, vy)
+    end
 end
 
 

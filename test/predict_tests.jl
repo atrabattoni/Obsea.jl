@@ -22,7 +22,7 @@
         @test transition(∅, scan, params) == EmptyState()
         params = Parameters(1.0, 0.0, 1.0, 1.0, 1.0, grid)
         @test transition(state, scan, params) == movedstate
-        @test transition(∅, scan, params) == nothing
+        @test typeof(transition(∅, scan, params)) <: State
     end
 
     @testset "logf" begin
