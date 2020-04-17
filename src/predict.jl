@@ -1,3 +1,13 @@
+function predict!(cloud::Cloud, scan::Scan, params::Parameters)
+    for particle ∈ cloud
+        push!(
+            particle.trajectory,
+            transition(particle.trajectory[end], scan, params),
+        )
+    end
+end
+
+
 function transition(state::State, scan::Scan, params::Parameters)
     if rand() < params.ps
         return move(state::State, params::Parameters)

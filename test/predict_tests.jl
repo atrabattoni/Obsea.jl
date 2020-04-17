@@ -27,10 +27,27 @@
 
     @testset "logf" begin
         params = Parameters(1.0, 0.1, 0.97, 0.03, 0.5)
-        @test logf(state, state, params) === log(params.ps)  # TODO
+        @test logf(state, state, params) === log(params.ps)  # TODO: diff state
         @test logf(∅, state, params) === log(1.0 - params.ps)
         @test logf(state, ∅, params) === log(params.pb)
         @test logf(∅, ∅, params) === log(1.0 - params.pb)
+    end
+
+    @testset "predict" begin
+        metadata = Metadata(0.1)
+        trajectory = Trajectory([state])
+        particle = Particle(trajectory, metadata)
+        cloud = Cloud([particle])
+
+        params = Parameters(1.0, 0.0, 1.0, 0.0, 0.5) # TODO: pb ≠ 0
+        predict!(cloud, scan, params)
+        @test length(particle.trajectory) === 2
+        @test particle.trajectory[2] == movedstate
+
+        params = Parameters(1.0, 0.0, 0.0, 0.0, 0.5)
+        predict!(cloud, scan, params)
+        @test length(particle.trajectory) === 3
+        @test particle.trajectory[3] == ∅
     end
 
 end
