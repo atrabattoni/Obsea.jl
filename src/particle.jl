@@ -18,9 +18,9 @@ end
 
 struct EmptyState end
 
-AnyState = Union{EmptyState,ShipState,WhaleState}
+const AnyState = Union{EmptyState,ShipState,WhaleState}
 
-Trajectory = Vector{AnyState}
+const Trajectory = Vector{AnyState}
 
 mutable struct Metadata
     weight::Float64
@@ -30,6 +30,8 @@ struct Particle
     trajectory::Trajectory
     metadata::Metadata
 end
+
+const Cloud = Vector{Particle} 
 
 struct Parameters
     T::Float64

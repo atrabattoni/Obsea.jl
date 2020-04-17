@@ -34,6 +34,16 @@
         @test particle.metadata.weight === 0.2
     end
 
+    @testset "Cloud" begin
+        state = ShipState(2.0, 3.0, 4.0, 5.0, 6.0)
+        ∅ = EmptyState()
+        trajectory = Trajectory([state, ∅])
+        metadata = Metadata(0.1)
+        particle = Particle(trajectory, metadata)
+        cloud = Cloud([particle, particle])
+        @test cloud[1] == particle
+    end
+
     @testset "Parameters" begin
         params = Parameters(1.0, 0.1, 0.97, 0.03, 0.5)
         @test params.T === 1.0

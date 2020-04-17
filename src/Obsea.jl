@@ -9,6 +9,7 @@ export State,
     Trajectory,
     Metadata,
     Particle,
+    Cloud,
     Parameters
 export Grid, Scan, logl
 export argsample
