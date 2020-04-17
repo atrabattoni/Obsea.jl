@@ -1,4 +1,4 @@
-@testset "particle.jl" begin
+@testset "types.jl" begin
 
     state = ShipState(2.0, 3.0, 4.0, 5.0, 6.0)
     ∅ = EmptyState()

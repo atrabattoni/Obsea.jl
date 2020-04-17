@@ -16,9 +16,9 @@ export Grid, Scan, update!, logl
 export argsample, resample
 export predict!, transition, move, birth, logf
 
-include("particle.jl")
+include("types.jl")
+include("predict.jl")
 include("update.jl")
 include("resample.jl")
-include("predict.jl")
 
 end # module

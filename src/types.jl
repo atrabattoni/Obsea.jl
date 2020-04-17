@@ -33,6 +33,20 @@ end
 
 const Cloud = Vector{Particle}
 
+struct Grid
+    range_r::AbstractRange
+    range_f::AbstractRange
+    range_a::AbstractRange
+    range_m::UnitRange{Int64}
+end
+
+struct Scan
+    cdf_r::Array{Float64,1}
+    cdf_fam::Array{Float64,1}
+    itp_r::ScaledInterpolation
+    itp_fam::ScaledInterpolation
+end
+
 struct Parameters
     T::Float64
     q::Float64
