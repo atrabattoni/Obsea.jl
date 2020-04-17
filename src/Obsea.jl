@@ -2,7 +2,14 @@ module Obsea
 
 using Interpolations
 
-export State, EmptyState, Trajectory, Metadata, Particle, Parameters
+export State,
+    EmptyState,
+    ShipState,
+    WhaleState,
+    Trajectory,
+    Metadata,
+    Particle,
+    Parameters
 export Grid, Scan, logl
 export argsample
 export transition, move, birth, logf

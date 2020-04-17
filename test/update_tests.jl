@@ -37,9 +37,9 @@
         ∅ = EmptyState()
         params = Parameters(1.0, 0.0, 0.97, 0.03, 0.5)
         @test logl(scan, ∅) == 0.0
-        state = State(1, 5.0, 1000.0, 1000.0, 0.0, 0.0)
+        state = ShipState(5.0, 1000.0, 1000.0, 0.0, 0.0)
         @test abs(logl(scan, state, params)) < 1e-15
-        state = State(2, 5.0, 1000.0, 1000.0, 0.0, 0.0)
+        state = WhaleState(5.0, 1000.0, 1000.0, 0.0, 0.0)
         @test abs(logl(scan, state, params)) < 1e-15
     end
 

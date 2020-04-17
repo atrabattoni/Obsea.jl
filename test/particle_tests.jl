@@ -1,8 +1,7 @@
 @testset "particle.jl" begin
 
-    @testset "State" begin
-        state = State(1, 2.0, 3.0, 4.0, 5.0, 6.0)
-        @test state.model === 1
+    @testset "ShipState" begin
+        state = ShipState(2.0, 3.0, 4.0, 5.0, 6.0)
         @test state.frequency === 2.0
         @test state.x === 3.0
         @test state.y === 4.0
@@ -11,7 +10,7 @@
     end
 
     @testset "Trajectory" begin
-        state = State(1, 2.0, 3.0, 4.0, 5.0, 6.0)
+        state = ShipState(2.0, 3.0, 4.0, 5.0, 6.0)
         ∅ = EmptyState()
         trajectory = Trajectory([state, ∅])
         @test trajectory == [state, ∅]
@@ -24,7 +23,7 @@
     end
 
     @testset "Particle" begin
-        state = State(1, 2.0, 3.0, 4.0, 5.0, 6.0)
+        state = ShipState(2.0, 3.0, 4.0, 5.0, 6.0)
         ∅ = EmptyState()
         trajectory = Trajectory([state, ∅])
         metadata = Metadata(0.1)
