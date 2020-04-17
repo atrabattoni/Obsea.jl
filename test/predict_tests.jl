@@ -12,21 +12,21 @@
     scan = Scan(ones(5), ones(7, 9, 2), grid)
 
     @testset "move" begin
-        params = Parameters(1.0, 0.0, 0.97, 0.03, 0.5)
+        params = Parameters(1.0, 0.0, 0.97, 0.03, 0.5, grid)
         @test move(state, params) == movedstate
     end
 
     @testset "transition" begin
-        params = Parameters(1.0, 0.0, 0.0, 0.0, 1.0)
+        params = Parameters(1.0, 0.0, 0.0, 0.0, 1.0, grid)
         @test transition(state, scan, params) == EmptyState()
         @test transition(∅, scan, params) == EmptyState()
-        params = Parameters(1.0, 0.0, 1.0, 1.0, 1.0)
+        params = Parameters(1.0, 0.0, 1.0, 1.0, 1.0, grid)
         @test transition(state, scan, params) == movedstate
         @test transition(∅, scan, params) == nothing
     end
 
     @testset "logf" begin
-        params = Parameters(1.0, 0.1, 0.97, 0.03, 0.5)
+        params = Parameters(1.0, 0.1, 0.97, 0.03, 0.5, grid)
         @test logf(state, state, params) === log(params.ps)  # TODO: diff state
         @test logf(∅, state, params) === log(1.0 - params.ps)
         @test logf(state, ∅, params) === log(params.pb)
@@ -39,12 +39,12 @@
         particle = Particle(trajectory, metadata)
         cloud = Cloud([particle])
 
-        params = Parameters(1.0, 0.0, 1.0, 0.0, 0.5) # TODO: pb ≠ 0
+        params = Parameters(1.0, 0.0, 1.0, 0.0, 0.5, grid) # TODO: pb ≠ 0
         predict!(cloud, scan, params)
         @test length(particle.trajectory) === 2
         @test particle.trajectory[2] == movedstate
 
-        params = Parameters(1.0, 0.0, 0.0, 0.0, 0.5)
+        params = Parameters(1.0, 0.0, 0.0, 0.0, 0.5, grid)
         predict!(cloud, scan, params)
         @test length(particle.trajectory) === 3
         @test particle.trajectory[3] == ∅

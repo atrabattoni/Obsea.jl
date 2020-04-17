@@ -14,7 +14,7 @@
     ∅ = EmptyState()
     ship = ShipState(5.0, 1000.0, 1000.0, 0.0, 0.0)
     whale = WhaleState(5.0, 1000.0, 1000.0, 0.0, 0.0)
-    params = Parameters(1.0, 0.0, 0.97, 0.03, 0.5)
+    params = Parameters(1.0, 0.0, 0.97, 0.03, 0.5, grid)
 
     @testset "Grid" begin
         @test convert(Float64, grid.range_r.step) == 100.0

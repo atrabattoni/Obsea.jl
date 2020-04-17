@@ -53,6 +53,7 @@ struct Parameters
     ps::Float64
     pb::Float64
     pd::Float64
+    grid::Grid
 end
 
 function init(N)

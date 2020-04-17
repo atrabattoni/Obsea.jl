@@ -6,7 +6,13 @@
     metadata = Metadata(0.1)
     particle = Particle(trajectory, metadata)
     cloud = Cloud([particle, particle])
-    params = Parameters(1.0, 0.1, 0.97, 0.03, 0.5)
+    grid = Grid(
+        range(0.0, 1000.0, length = 5),
+        range(0.0, 10.0, length = 7),
+        range(0.0, 360.0, length = 9),
+        (1:2),
+    )
+    params = Parameters(1.0, 0.1, 0.97, 0.03, 0.5, grid)
 
     @testset "ShipState" begin
         @test state.frequency === 2.0
