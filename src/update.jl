@@ -29,9 +29,14 @@ end
 
 
 function update!(cloud::Cloud, scan::Scan, params::Parameters)
+    normalization = 0.0
     for particle ∈ cloud
-        particle.metadata.weight *=
-            exp(logl(scan, particle.trajectory[end], params))
+        likelihood = exp(logl(scan, particle.trajectory[end], params))
+        particle.metadata.weight *= likelihood
+        normalization += likelihood
+    end
+    for particle ∈ cloud
+        particle.metadata.weight /= normalization
     end
 end
 
