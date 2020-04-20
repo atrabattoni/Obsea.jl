@@ -15,26 +15,3 @@ function tdoa(r, depth, celerity, nmode, tc, tb)
     end
     tau = diff(t)
 end
-
-
-function tau2range(depth, celerity, nmode, fs, nfft)
-
-    dtau = 1.0 / fs
-    ntau = nfft // 2 + 1
-    tau = dtau * collect(1:ntau)
-
-    f(tau, k) =
-        sqrt(
-            (tau * celerity - 2 * depth) *
-            (tau * celerity + 2 * depth) *
-            (tau * celerity - 4 * depth * k - 4 * depth) *
-            (tau * celerity + 4 * depth * k + 4 * depth),
-        ) / (2 * tau * celerity)
-
-    r = zeros(nmode, ntau)
-    for k = 1:nmode
-        r[k] = f(tau, k)
-    end
-
-    return tau, r
-end

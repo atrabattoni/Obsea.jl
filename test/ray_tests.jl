@@ -16,6 +16,7 @@
         tc = tlim(deg2rad(30.0), depth, celerity, nmode)
         tb = tlim(deg2rad(80.0), depth, celerity, nmode)
         @test all(isnan.(tdoa(0.0, depth, celerity, nmode, tc, tb)))
+        @test all(isnan.(tdoa(90.0, depth, celerity, nmode, tc, tb)))
     end
 
 end
