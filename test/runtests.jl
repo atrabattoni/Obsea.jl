@@ -6,4 +6,5 @@ using Test
     include("predict_tests.jl")
     include("update_tests.jl")
     include("resample_tests.jl")
+    include("ray_tests.jl")
 end

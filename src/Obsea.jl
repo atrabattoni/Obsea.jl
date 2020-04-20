@@ -20,5 +20,6 @@ include("types.jl")
 include("predict.jl")
 include("update.jl")
 include("resample.jl")
+include("ray.jl")
 
 end # module
