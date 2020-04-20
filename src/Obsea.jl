@@ -17,9 +17,9 @@ export argsample, resample
 export predict!, transition, move, birth, logf
 
 include("types.jl")
+include("precompute.jl")
 include("predict.jl")
 include("update.jl")
 include("resample.jl")
-include("ray.jl")
 
 end # module
