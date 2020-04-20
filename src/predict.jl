@@ -9,7 +9,8 @@ end
 
 
 function transition(state::State, scan::Scan, params::Parameters)
-    if rand() < params.ps
+    @unpack ps = params
+    if rand() < ps
         return move(state, params)
     else
         return EmptyState()
@@ -17,7 +18,8 @@ function transition(state::State, scan::Scan, params::Parameters)
 end
 
 function transition(state::EmptyState, scan::Scan, params::Parameters)
-    if rand() < params.pb
+    @unpack pb = params
+    if rand() < pb
         return birth(scan, params)
     else
         return EmptyState()
@@ -26,7 +28,7 @@ end
 
 
 function move(state::State, params::Parameters)
-    q, T = params.q, params.T
+    @unpack q, T = params
     ax = q * randn()
     ay = q * randn()
     frequency = state.frequency
@@ -39,7 +41,7 @@ end
 
 
 function birth(scan::Scan, params::Parameters)
-    grid = params.grid
+    @unpack grid = params
     idx_r = searchsortedfirst(scan.cdf_r, rand(), lt = <=)
     idx_fam = searchsortedfirst(scan.cdf_fam, rand(), lt = <=)
     cidx_fam = CartesianIndex((
@@ -64,23 +66,23 @@ end
 
 
 function logf(state::State, prevstate::State, params::Parameters)
-    q, T, ps = params.q, params.T, params.ps
+    @unpack q, T, ps = params
     dvx = state.vx - prevstate.vx
     dvy = state.vy - prevstate.vy
     log(ps) - (dvx^2 + dvy^2) / (q * T)^2  # TODO
 end
 
 function logf(state::EmptyState, prevstate::State, params::Parameters)
-    ps = params.ps
+    @unpack ps = params
     log(1.0 - ps)
 end
 
 function logf(state::State, prevstate::EmptyState, params::Parameters)
-    pb = params.pb
+    @unpack pb = params
     log(pb)
 end
 
 function logf(state::EmptyState, prevstate::EmptyState, params::Parameters)
-    pb = params.pb
+    @unpack pb = params
     log(1.0 - pb)
 end

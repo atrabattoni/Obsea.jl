@@ -1,4 +1,4 @@
-@testset "ray" begin
+@testset "precompute" begin
 
     nmode = 3
     depth = 4340.0

@@ -1,6 +1,9 @@
 module Obsea
 
+using DSP
 using Interpolations
+using Parameters
+using SpecialFunctions
 
 export State,
     EmptyState,

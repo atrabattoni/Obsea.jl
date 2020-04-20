@@ -40,7 +40,7 @@ end
 
 
 function logl(scan::Scan, state::ShipState, params::Parameters)
-    pd = params.pd
+    @unpack pd = params
     r = sqrt(state.x^2 + state.y^2)
     f = state.frequency
     a = atan(state.x, state.y)
@@ -48,7 +48,7 @@ function logl(scan::Scan, state::ShipState, params::Parameters)
 end
 
 function logl(scan::Scan, state::WhaleState, params::Parameters)
-    pd = params.pd
+    @unpack pd = params
     r = sqrt(state.x^2 + state.y^2)
     f = state.frequency
     a = atan(state.x, state.y)
