@@ -1,10 +1,10 @@
-function tlim(incidence, depth, celerity, nmode)
+function tlim(incidence, nmode, depth, celerity)
     k = collect(1:2:2*nmode+1)
     t = k .* depth ./ cos(incidence) ./ celerity
 end
 
 
-function tdoa(r, depth, celerity, nmode, tc, tb)
+function tdoa(r, nmode, depth, celerity, tc, tb)
     k = collect(1:2:2*nmode+1)
     t = zeros(nmode + 1)
     for i = 1:nmode+1
