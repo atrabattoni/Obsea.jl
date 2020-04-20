@@ -15,3 +15,12 @@ function tdoa(r, nmode, depth, celerity, tc, tb)
     end
     tau = diff(t)
 end
+
+
+function convsame(u, v)
+    @assert length(u) > length(v)
+    @assert isodd(length(v))
+    padding = length(v) ÷ 2
+    conv(u, v)[1+padding:end-padding]
+end
+
