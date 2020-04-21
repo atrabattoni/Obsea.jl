@@ -1,13 +1,17 @@
-function tlim(incidence, mode, celerity, depth)
+function tlim(incidence, mode, depth, celerity)
     (2 * mode - 1) * depth / cos(incidence) / celerity
 end
 
 
-function toa(r, mode, celerity, depth, ic, ib)
-    t = sqrt((mode * depth)^2 + r^2) / celerity
-    tc = tlim(ic, mode, celerity, depth)
-    tb = tlim(ib, mode, celerity, depth)
-    if tc < t < tb
+function toa(r, mode, depth, celerity)
+    sqrt(((2 * mode - 1) * depth)^2 + r^2) / celerity
+end
+
+function toa(r, mode, depth, celerity, ic, ib)
+    t = toa(r, mode, depth, celerity)
+    tc = tlim(ic, mode, depth, celerity)
+    tb = tlim(ib, mode, depth, celerity)
+    if tc <= t <= tb
         return t
     else
         return NaN
@@ -15,24 +19,24 @@ function toa(r, mode, celerity, depth, ic, ib)
 end
 
 
-function tdoa(r, mode, celerity, depth, ic, ib)
-    toa(r, mode + 1, celerity, depth, ic, ib) -
-    toa(r, mode, celerity, depth, ic, ib)
+function tdoa(r, mode, depth, celerity, ic, ib)
+    toa(r, mode + 1, depth, celerity, ic, ib) -
+    toa(r, mode, depth, celerity, ic, ib)
 end
 
 
-function propagation(rrange, nmode, celerity, depth, ic, ib)
-    [tdoa(r, mode, celerity, depth, ic, ib) for r in rrange, mode = 1:nmode]
+function propagation(rrange, nmode, depth, celerity, ic, ib)
+    [tdoa(r, mode, depth, celerity, ic, ib) for r in rrange, mode = 1:nmode]
 end
 
 
 function window(n::Int64, σ::Float64)
-    v = gaussian(n[mode], σ[mode])
+    v = gaussian(n, σ)
     v /= sum(v)
 end
 
 function window(n::Array{Int64,1}, σ::Array{Float64,1})
-    @assert length(n) = length(σ)
+    @assert length(n) == length(σ)
     Dict(mode => window(n[mode], σ[mode]) for mode = 1:length(n))
 end
 
@@ -45,23 +49,10 @@ function convsame(u, v)
 end
 
 
-function precomp(z, lam, nmode, v, τrange, τ)
-    u = exp.(-lam ./ 2.0) .* besseli.(0, sqrt.(lam .* z))
-    y = ones(size(τ, 1))
-    for mode = 1:nmode
-        A = convsame(u, v[mode])
-        itp = interpolate!(A, BSpline(Cubic(Line(OnGrid()))))
-        itp = extrapolate(itp, 1.0)
-        itp = scale(itp, τrange)
-        y .*= itp(τ[:, mode])
-    end
-end
-
-
 struct Range
     nmode::Int64
-    celerity::Float64
     depth::Float64
+    celerity::Float64
     ic::Float64
     ib::Float64
     lam::Float64
@@ -70,16 +61,31 @@ struct Range
     rrange::AbstractRange
     τrange::AbstractRange
     v::Dict{Int64,Array{Float64,1}}
-    τ::Array{::Float64,2}
-    function Range(nmode, celerity, depth, ic, ib, lam, n, σ, rrange, τrange)
-        v = windows(n, σ)
-        τ = propagation(rrange, nmode, celerity, depth, ic, ib)
-        new(nmode, celerity, depth, ic, ib, lam, n, σ, rrange, τrange, v, τ)
+    τ::Array{Float64,2}
+    function Range(nmode, depth, celerity, ic, ib, lam, n, σ, rrange, τrange)
+        @assert length(n) == length(σ) == nmode
+        v = window(n, σ)
+        τ = propagation(rrange, nmode, depth, celerity, ic, ib)
+        new(nmode, depth, celerity, ic, ib, lam, n, σ, rrange, τrange, v, τ)
     end
 end
 
 
+function precomp(z, lam, nmode, v, τrange, τ)
+    @assert size(τ, 2) == length(v) == nmode
+    u = exp.(-lam ./ 2.0) .* besseli.(0, sqrt.(lam .* z))
+    y = ones(size(τ, 1))
+    for mode = 1:nmode
+        A = convsame(u, v[mode])
+        itp = interpolate(A, BSpline(Cubic(Line(OnGrid()))))
+        itp = extrapolate(itp, 1.0)
+        itp = scale(itp, τrange)
+        y .*= itp(τ[:, mode])
+    end
+    y
+end
+
 function precomp(z, model::Range)
-    @unpack z, lam, nmode, n, σ, τrange, τ = model
-    precomp(z, lam, nmode, n, σ, τrange, τ)
+    @unpack lam, nmode, v, τrange, τ = model
+    precomp(z, lam, nmode, v, τrange, τ)
 end

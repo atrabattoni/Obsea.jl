@@ -1,52 +1,80 @@
-@testset "precompute" begin
+@testset "range" begin
 
     nmode = 3
     depth = 4340.0
     celerity = 1502.0
+    ic = deg2rad(10.0)
+    ib = deg2rad(80.0)
+
+    lam = 1.0
+    rrange = range(0.0, 30_000.0, step = 100.0)
+    τrange = range(0.0, 10.24, length = 513)
+    z = zeros(513)
 
     @testset "tlim" begin
         import Obsea.tlim
-        @test length(tlim(deg2rad(45.0), nmode, depth, celerity)) == nmode + 1
-        @test tlim(deg2rad(0.0), nmode, depth, celerity) ==
-              [(2i - 1) * depth / celerity for i = 1:nmode+1]
+        @test tlim(0.0, 1, depth, celerity) == depth / celerity
+        @test tlim(0.0, 2, depth, celerity) == 3 * depth / celerity
+        @test tlim(π / 4, 1, depth, celerity) ≈ sqrt(2) * depth / celerity
+    end
+
+    @testset "toa" begin
+        import Obsea.toa
+        @test isnan(toa(0.0, 1, depth, celerity, ic, ib))
+        @test isnan(toa(100_000.0, 1, depth, celerity, ic, ib))
+        @test toa(depth, 1, depth, celerity, ic, ib) ==
+              sqrt(2) * depth / celerity
+        @test toa(depth, 2, depth / 3, celerity, ic, ib) ==
+              sqrt(2) * depth / celerity
     end
 
     @testset "tdoa" begin
         import Obsea.tdoa
-        tc = tlim(deg2rad(30.0), nmode, depth, celerity)
-        tb = tlim(deg2rad(80.0), nmode, depth, celerity)
-        @test all(isnan.(tdoa(0.0, nmode, depth, celerity, tc, tb)))
-        @test all(isnan.(tdoa(90.0, nmode, depth, celerity, tc, tb)))
+        @test isnan(tdoa(0.0, 2, depth, celerity, ic, ib))
+        @test isnan(tdoa(100_000.0, 1, depth, celerity, ic, ib))
+        @test tdoa(0.0, 1, depth, celerity, 0.0, ib) ≈ 2 * depth / celerity
+    end
+
+    @testset "propagation" begin
+        import Obsea.propagation
+        @test propagation([0.0], 2, depth, celerity, 0.0, π / 2) ≈
+              [2 * depth / celerity 2 * depth / celerity]
+    end
+
+    @testset "window" begin
+        import Obsea.window
+        @test sum(window(7, 0.25)) ≈ 1.0
+        @test window([5, 7], [0.5, 0.25])[1] == window(5, 0.5)
     end
 
     @testset "convsame" begin
         import Obsea.convsame
+        u = rand(10)
+        @test convsame(u, ones(1)) == u
         @test convsame(ones(5), ones(3)) ≈ [2.0, 3.0, 3.0, 3.0, 2.0]
     end
 
-    @testset "precomp_r" begin
-        import Obsea.precomp_r
-        z = rand(513).^2
-        lam = 1.0
-        nmode = 3
-        range_r = 0.0:100.0:30000.0
-        range_tau = range(0.0, 10.24, length = 513)
-        n = [1, 3, 5]
-        σ = 0.5 / 2.0
-        tc = tlim(deg2rad(30.0), nmode, depth, celerity)
-        tb = tlim(deg2rad(80.0), nmode, depth, celerity)
-        precomp_r(
-            z,
-            lam,
-            nmode,
-            range_r,
-            range_tau,
-            n,
-            σ,
-            depth,
-            celerity,
-            tc,
-            tb,
-        )
+    @testset "Range" begin
+        import Obsea.Range
+        n = fill(1, nmode)
+        σ = fill(1.0, nmode)
+        model = Range(nmode, depth, celerity, ic, ib, lam, n, σ, rrange, τrange)
+        @test length(model.v) == nmode
+        @test size(model.τ) == (length(rrange), nmode)
+    end
+
+    @testset "precomp" begin
+        import Obsea.precomp
+        v = window(fill(1, nmode), fill(1.0, nmode))
+        τ = propagation(rrange, nmode, depth, celerity, 0.0, pi / 2)
+        @test precomp(z, lam, nmode, v, τrange, τ) ≈
+              fill(exp(-lam / 2)^nmode, length(rrange))
+        τ = propagation(rrange, nmode, depth, celerity, pi / 2, 0.0)
+        @test precomp(z, lam, nmode, v, τrange, τ) == fill(1.0, length(rrange))
+        n = fill(1, nmode)
+        σ = fill(1.0, nmode)
+        model =
+            Range(nmode, depth, celerity, 0, pi / 2, lam, n, σ, rrange, τrange)
+        @test precomp(z, model) ≈ fill(exp(-lam / 2)^nmode, length(rrange))
     end
 end
