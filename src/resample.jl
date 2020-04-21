@@ -1,12 +1,12 @@
-function argsample(w, N)
+function argsample(weights, N)
     out = Array{Int64,1}(undef, N)
     j = 1
-    s = w[j]
+    s = weights[j]
     u = rand() / N
-    for i=1:N
-        while s<u
+    for i = 1:N
+        while s < u
             j += 1
-            s += w[j]
+            s += weights[j]
         end
         out[i] = j
         u += 1 / N
@@ -15,14 +15,10 @@ function argsample(w, N)
 end
 
 
-function resample(cloud)
-    w = [particle.metadata.weight for particle ∈ cloud]
-    idx = argsample(w, length(cloud))
-    out = Cloud()
-    for i ∈ idx
-        particle = deepcopy(cloud[i])
-        particle.metadata.weight = 1 / length(cloud)
-        push!(out, particle)
-    end
-    out
+function resample(weights, cloud)
+    @assert length(weights) == length(cloud)
+    idx = argsample(weights, length(cloud))
+    newcloud = [deepcopy(cloud[i]) for i in idx]
+    newweights = fill(1 / length(cloud), length(cloud))
+    (newweights, newcloud)
 end

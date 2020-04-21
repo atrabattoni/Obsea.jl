@@ -1,8 +1,4 @@
-function Scan(
-    y_r::Array{Float64,1},
-    y_fam::Array{Float64,3},
-    grid::Grid,
-)
+function Scan(y_r, y_fam, grid)
     itp_r = interpolate(y_r, BSpline(Cubic(Line(OnGrid()))))
     itp_fam = interpolate(
         y_fam,
@@ -26,35 +22,26 @@ function Scan(
 end
 
 
-function update!(cloud::Cloud, scan::Scan, params::Parameters)
-    normalization = 0.0
-    for particle ∈ cloud
-        likelihood = exp(logl(scan, particle.trajectory[end], params))
-        particle.metadata.weight *= likelihood
-        normalization += likelihood
+function update!(weights, cloud, scan, params)
+    for (i, particle) in enumerate(cloud)
+        weights[i] *= exp(logl(scan, particle[end], params))
     end
-    for particle ∈ cloud
-        particle.metadata.weight /= normalization
+    weights /= sum(weights)
+end
+
+
+function logl(scan, state, params)
+    @unpack pd = params
+    if isempty(state)
+        return 0.0
+    else
+        r = sqrt(state.x^2 + state.y^2)
+        f = state.frequency
+        a = atan(state.x, state.y)
+        if state.model == 1
+            return log(scan.itp_r(r) * scan.itp_fam(f, a, 1))
+        elseif state.model == 2
+            return log((1.0 - pd) + pd * scan.itp_r(r) * scan.itp_fam(f, a, 2))
+        end
     end
-end
-
-
-function logl(scan::Scan, state::ShipState, params::Parameters)
-    @unpack pd = params
-    r = sqrt(state.x^2 + state.y^2)
-    f = state.frequency
-    a = atan(state.x, state.y)
-    log(scan.itp_r(r) * scan.itp_fam(f, a, 1))
-end
-
-function logl(scan::Scan, state::WhaleState, params::Parameters)
-    @unpack pd = params
-    r = sqrt(state.x^2 + state.y^2)
-    f = state.frequency
-    a = atan(state.x, state.y)
-    log((1.0 - pd) + pd * scan.itp_r(r) * scan.itp_fam(f, a, 2))
-end
-
-function logl(scan::Scan, state::EmptyState)
-    0.0
 end

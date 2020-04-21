@@ -1,6 +1,5 @@
-abstract type State end
-
-struct ShipState <: State
+struct State
+    model::Int64
     frequency::Float64
     x::Float64
     y::Float64
@@ -8,30 +7,12 @@ struct ShipState <: State
     vy::Float64
 end
 
-struct WhaleState <: State
-    frequency::Float64
-    x::Float64
-    y::Float64
-    vx::Float64
-    vy::Float64
-end
+EmptyState() = State(0, NaN, NaN, NaN, NaN, NaN)
+isempty(s::State) = (s.model == 0)
 
-struct EmptyState end
-
-const AnyState = Union{EmptyState,ShipState,WhaleState}
-
-const Trajectory = Vector{AnyState}
-
-mutable struct Metadata
-    weight::Float64
-end
-
-struct Particle
-    trajectory::Trajectory
-    metadata::Metadata
-end
-
+const Particle = Vector{State}
 const Cloud = Vector{Particle}
+const Weights = Vector{Float64}
 
 struct Grid
     range_r::AbstractRange
@@ -57,5 +38,7 @@ end
 end
 
 function init(N)
-    cloud = Cloud([Particle(Trajectory(), Metadata(1 / N)) for i = 1:N])
+    weights = Weights(fill(1 / N, N))
+    cloud = Cloud([Particle() for i = 1:N])
+    return (weights, cloud)
 end

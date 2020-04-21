@@ -12,8 +12,8 @@
         grid,
     )
     ∅ = EmptyState()
-    ship = ShipState(5.0, 1000.0, 1000.0, 0.0, 0.0)
-    whale = WhaleState(5.0, 1000.0, 1000.0, 0.0, 0.0)
+    ship = State(1, 5.0, 1000.0, 1000.0, 0.0, 0.0)
+    whale = State(2, 5.0, 1000.0, 1000.0, 0.0, 0.0)
     params = Parameters(1.0, 0.0, 0.97, 0.03, 0.5, grid)
 
     @testset "Grid" begin
@@ -30,18 +30,18 @@
     end
 
     @testset "logl" begin
-        @test logl(scan, ∅) == 0.0
+        import Obsea.logl
+        @test logl(scan, ∅, params) == 0.0
         @test abs(logl(scan, ship, params)) < 1e-15
         @test abs(logl(scan, whale, params)) < 1e-15
     end
 
     @testset "update" begin
-        metadata = Metadata(1.0)
-        trajectory = Trajectory([ship])
-        particle = Particle(trajectory, metadata)
-        cloud = Cloud([particle])
-        update!(cloud, scan, params)
-        @test particle.metadata.weight ≈ 1.0
+        import Obsea.update!
+        weights = [1.0]
+        cloud = [[ship]]
+        update!(weights, cloud, scan, params)
+        @test weights[1] ≈ 1.0
 
     end
 

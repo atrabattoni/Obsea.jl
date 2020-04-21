@@ -1,46 +1,43 @@
-function predict!(cloud::Cloud, scan::Scan, params::Parameters)
-    for particle ∈ cloud
-        push!(
-            particle.trajectory,
-            transition(particle.trajectory[end], scan, params),
-        )
+function predict!(cloud, scan, params)
+    for particle in cloud
+        push!(particle, transition(particle[end], scan, params))
     end
 end
 
 
-function transition(state::State, scan::Scan, params::Parameters)
-    @unpack ps = params
-    if rand() < ps
-        return move(state, params)
+function transition(state, scan, params)
+    @unpack pb, ps = params
+    if isempty(state)
+        if rand() < pb
+            return birth(scan, params)
+        else
+            return EmptyState()
+        end
     else
-        return EmptyState()
-    end
-end
-
-function transition(state::EmptyState, scan::Scan, params::Parameters)
-    @unpack pb = params
-    if rand() < pb
-        return birth(scan, params)
-    else
-        return EmptyState()
+        if rand() < ps
+            return move(state, params)
+        else
+            return EmptyState()
+        end
     end
 end
 
 
-function move(state::State, params::Parameters)
+function move(state, params)
     @unpack q, T = params
     ax = q * randn()
     ay = q * randn()
+    model = state.model
     frequency = state.frequency
     x = state.x + state.vx * T + ax * T^2 / 2.0
     y = state.y + state.vy * T + ay * T^2 / 2.0
     vx = state.vx + ax * T
     vy = state.vy + ay * T
-    typeof(state)(frequency, x, y, vx, vy)
+    State(model, frequency, x, y, vx, vy)
 end
 
 
-function birth(scan::Scan, params::Parameters)
+function birth(scan, params)
     @unpack grid = params
     idx_r = searchsortedfirst(scan.cdf_r, rand(), lt = <=)
     idx_fam = searchsortedfirst(scan.cdf_fam, rand(), lt = <=)
@@ -57,32 +54,25 @@ function birth(scan::Scan, params::Parameters)
     y = r * cos(a)
     vx = 10.0 * rand()
     vy = 10.0 * rand()
-    if m == 1
-        return ShipState(f, x, y, vx, vy)
-    elseif m == 2
-        return WhaleState(f, x, y, vx, vy)
+    State(m, f, x, y, vx, vy)
+end
+
+
+function logf(state, prevstate, params)
+    @unpack pb, ps, q, T = params
+    if isempty(state)
+        if isempty(prevstate)
+            return log(1.0 - pb)
+        else
+            return log(1.0 - ps)
+        end
+    else
+        if isempty(prevstate)
+            return log(pb)
+        else
+            dvx = state.vx - prevstate.vx
+            dvy = state.vy - prevstate.vy
+            return log(ps) - (dvx^2 + dvy^2) / (q * T)^2  # TODO
+        end
     end
-end
-
-
-function logf(state::State, prevstate::State, params::Parameters)
-    @unpack q, T, ps = params
-    dvx = state.vx - prevstate.vx
-    dvy = state.vy - prevstate.vy
-    log(ps) - (dvx^2 + dvy^2) / (q * T)^2  # TODO
-end
-
-function logf(state::EmptyState, prevstate::State, params::Parameters)
-    @unpack ps = params
-    log(1.0 - ps)
-end
-
-function logf(state::State, prevstate::EmptyState, params::Parameters)
-    @unpack pb = params
-    log(pb)
-end
-
-function logf(state::EmptyState, prevstate::EmptyState, params::Parameters)
-    @unpack pb = params
-    log(1.0 - pb)
 end
