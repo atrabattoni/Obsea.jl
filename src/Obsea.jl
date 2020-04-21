@@ -20,7 +20,7 @@ export argsample, resample
 export predict!, transition, move, birth, logf
 
 include("types.jl")
-include("precompute.jl")
+include("range.jl")
 include("predict.jl")
 include("update.jl")
 include("resample.jl")
