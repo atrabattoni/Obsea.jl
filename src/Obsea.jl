@@ -21,6 +21,7 @@ export predict!, transition, move, birth, logf
 
 include("types.jl")
 include("range.jl")
+include("azimuth.jl")
 include("predict.jl")
 include("update.jl")
 include("resample.jl")
