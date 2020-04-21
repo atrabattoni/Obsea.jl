@@ -71,7 +71,8 @@ struct Range
 end
 
 
-function precomp(z, lam, nmode, v, τrange, τ)
+function precomp(z::Array{Float64,1}, model::Range)
+    @unpack lam, nmode, v, τrange, τ = model
     @assert size(τ, 2) == length(v) == nmode
     u = exp.(-lam ./ 2.0) .* besseli.(0, sqrt.(lam .* z))
     y = ones(size(τ, 1))
@@ -83,9 +84,4 @@ function precomp(z, lam, nmode, v, τrange, τ)
         y .*= itp(τ[:, mode])
     end
     y
-end
-
-function precomp(z, model::Range)
-    @unpack lam, nmode, v, τrange, τ = model
-    precomp(z, lam, nmode, v, τrange, τ)
 end

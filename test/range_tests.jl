@@ -65,16 +65,13 @@
 
     @testset "precomp" begin
         import Obsea.precomp
-        v = window(fill(1, nmode), fill(1.0, nmode))
-        τ = propagation(rrange, nmode, depth, celerity, 0.0, pi / 2)
-        @test precomp(z, lam, nmode, v, τrange, τ) ≈
-              fill(exp(-lam / 2)^nmode, length(rrange))
-        τ = propagation(rrange, nmode, depth, celerity, pi / 2, 0.0)
-        @test precomp(z, lam, nmode, v, τrange, τ) == fill(1.0, length(rrange))
         n = fill(1, nmode)
         σ = fill(1.0, nmode)
         model =
             Range(nmode, depth, celerity, 0, pi / 2, lam, n, σ, rrange, τrange)
         @test precomp(z, model) ≈ fill(exp(-lam / 2)^nmode, length(rrange))
+        model =
+            Range(nmode, depth, celerity, pi / 2, 0, lam, n, σ, rrange, τrange)
+        @test precomp(z, model) ≈ fill(1.0, length(rrange))
     end
 end
