@@ -1,6 +1,6 @@
 function update!(weights, cloud, itp, models)
     for (i, particle) in enumerate(cloud)
-        weights[i] *= likelihoodratio(itp, last(particle), models))
+        weights[i] *= likelihoodratio(itp, last(particle), models)
     end
     weights /= sum(weights)
 end

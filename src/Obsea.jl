@@ -3,10 +3,11 @@ module Obsea
 using DSP
 using Interpolations
 using Parameters
+using Pkg.TOML
 using SpecialFunctions
 
 include("utils.jl")
-include("propa.jl")
+include("propagation.jl")
 include("parameters.jl")
 include("precompute.jl")
 include("particle.jl")

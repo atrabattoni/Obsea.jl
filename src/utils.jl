@@ -5,8 +5,23 @@ end
 
 
 function limit(xrange, xmin, xmax)
-    imin = xmin ÷ xrange.step + 1
-    imax = xmax ÷ xrange.step
+    @assert first(xrange) <= xmin <= xmax <= last(xrange)
+    imin = 1
+    for x in xrange
+        if x >= xmin
+            break
+        else
+            imin += 1
+        end
+    end
+    imax = length(xrange)
+    for x in reverse(xrange)
+        if x <= xmax
+            break
+        else
+            imax -= 1
+        end
+    end
     xrange[imin:imax]
 end
 

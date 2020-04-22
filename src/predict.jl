@@ -26,7 +26,7 @@ function move(state, models, grid)
         vx = vx + ax * T
         vy = vy + ay * T
         return State(m, f, x, y, vx, vy)
-    else:
+    else
         return State()
     end
 end

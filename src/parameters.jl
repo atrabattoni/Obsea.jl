@@ -1,6 +1,3 @@
-import pkg.TOML.parsefile
-
-
 struct Propagation
     nmode::Int64
     depth::Float64
@@ -64,6 +61,6 @@ function parameters(dict::Dict, fs, nfft)
 end
 
 function parameters(fname::String, fs, nfft)
-    dict = parsefile(fname)
+    dict = TOML.parsefile(fname)
     return parameters(dict::Dict, fs, nfft)
 end

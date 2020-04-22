@@ -61,8 +61,8 @@ end
 
 
 struct Itp
-    r::::ScaledInterpolation
-    fam::::ScaledInterpolation
+    r::ScaledInterpolation
+    fam::ScaledInterpolation
 end
 
 

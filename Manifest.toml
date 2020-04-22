@@ -23,9 +23,9 @@ version = "0.3.3+0"
 
 [[DSP]]
 deps = ["FFTW", "IterTools", "LinearAlgebra", "Polynomials", "Random", "Reexport", "SpecialFunctions", "Statistics"]
-git-tree-sha1 = "aecdff28c8de62744791a92ce95ff5aebac088be"
+git-tree-sha1 = "302ad2e27750367ccd17515810d322fa3d42d9f8"
 uuid = "717857b8-e6f2-59f4-9121-6e50c889abd2"
-version = "0.6.4"
+version = "0.6.5"
 
 [[Dates]]
 deps = ["Printf"]
@@ -153,9 +153,9 @@ uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 
 [[Polynomials]]
 deps = ["Intervals", "LinearAlgebra", "RecipesBase"]
-git-tree-sha1 = "a88e0eddef9202b651f4b60b37b59ca67bb49516"
+git-tree-sha1 = "19f1b9e3f27702309880b9ccb051287729af7db4"
 uuid = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
-version = "0.7.0"
+version = "0.8.0"
 
 [[Printf]]
 deps = ["Unicode"]

@@ -2,10 +2,13 @@ using Obsea
 using Test
 
 @testset "Obsea.jl" begin
-    include("types_tests.jl")
-    include("range_tests.jl")
-    include("azimuth_tests.jl")
-    include("predict_tests.jl")
-    include("update_tests.jl")
-    include("resample_tests.jl")
+    include("utils_tests.jl")
+    # include("propagation_tests.jl")
+    # include("parameters_tests.jl")
+    # include("precompute_tests.jl")
+    # include("particle_tests.jl")
+    # include("predict_tests.jl")
+    # include("update_tests.jl")
+    # include("reamplemove_tests.jl")
+    # include("tracker_tests.jl")
 end
