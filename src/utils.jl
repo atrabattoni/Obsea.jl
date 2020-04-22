@@ -1,5 +1,5 @@
-function window(n::Int64, σ::Float64)
-    v = gaussian(n, σ)
+function window(n, sigma)
+    v = gaussian(n, sigma)
     v /= sum(v)
 end
 
