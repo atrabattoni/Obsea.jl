@@ -5,11 +5,14 @@ using Interpolations
 using Parameters
 using SpecialFunctions
 
-include("types.jl")
-include("range.jl")
-include("azimuth.jl")
+include("utils.jl")
+include("propa.jl")
+include("parameters.jl")
+include("precompute.jl")
+include("particle.jl")
 include("predict.jl")
 include("update.jl")
-include("resample.jl")
+include("resamplemove.jl")
+include("tracker.jl")
 
 end # module

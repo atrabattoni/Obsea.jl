@@ -35,9 +35,9 @@
         @test tdoa(0.0, 1, depth, celerity, 0.0, ib) ≈ 2 * depth / celerity
     end
 
-    @testset "propagation" begin
-        import Obsea.propagation
-        @test propagation([0.0], 2, depth, celerity, 0.0, π / 2) ≈
+    @testset "propa" begin
+        import Obsea.propa
+        @test propa([0.0], 2, depth, celerity, 0.0, π / 2) ≈
               [2 * depth / celerity 2 * depth / celerity]
     end
 
@@ -58,7 +58,7 @@
         import Obsea.Range
         n = fill(1, nmode)
         σ = fill(1.0, nmode)
-        model = Range(nmode, depth, celerity, ic, ib, lam, n, σ, rrange, τrange)
+        model= Propagation(nmode, depth, celerity, ic, ib, lam, n, σ, rrange, τrange)
         @test length(model.v) == nmode
         @test size(model.τ) == (length(rrange), nmode)
     end
@@ -67,11 +67,11 @@
         import Obsea.precomp
         n = fill(1, nmode)
         σ = fill(1.0, nmode)
-        model =
-            Range(nmode, depth, celerity, 0, pi / 2, lam, n, σ, rrange, τrange)
+        model=
+            Propagation(nmode, depth, celerity, 0, pi / 2, lam, n, σ, rrange, τrange)
         @test precomp(z, model) ≈ fill(exp(-lam / 2)^nmode, length(rrange))
-        model =
-            Range(nmode, depth, celerity, pi / 2, 0, lam, n, σ, rrange, τrange)
+        model=
+            Propagation(nmode, depth, celerity, pi / 2, 0, lam, n, σ, rrange, τrange)
         @test precomp(z, model) ≈ fill(1.0, length(rrange))
     end
 end

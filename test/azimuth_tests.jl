@@ -27,7 +27,7 @@
         import Obsea.precomp
         z = zeros(200)
         arange = range(0, 360, length=121)
-        model = Azimuth(0.9, 5, arange)
+        model= Azimuth(0.9, 5, arange)
         @test size(precomp(z, model)) == (200, 121, 2)
     end
 

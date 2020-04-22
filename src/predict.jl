@@ -1,65 +1,68 @@
-function predict!(cloud, scan, model)
+function predict!(cloud, cdf, models, grid)
     for particle in cloud
-        push!(particle, transition(particle[end], scan, model))
+        push!(particle, transition(last(particle), cdf, models, grid))
     end
 end
 
 
-function transition(state, scan, model)
-    @unpack pb, ps = model
+function transition(state, cdf, models, grid)
     if isempty(state)
-        if rand() < pb
-            return birth(scan, model)
-        else
-            return EmptyState()
-        end
+        return birth(cdf, models, grid)
     else
-        if rand() < ps
-            return move(state, model)
-        else
-            return EmptyState()
-        end
+        return move(state, models, grid)
     end
 end
 
 
-function move(state, model)
-    @unpack q, T = model
-    ax = q * randn()
-    ay = q * randn()
-    model = state.model
-    frequency = state.frequency
-    x = state.x + state.vx * T + ax * T^2 / 2.0
-    y = state.y + state.vy * T + ay * T^2 / 2.0
-    vx = state.vx + ax * T
-    vy = state.vy + ay * T
-    State(model, frequency, x, y, vx, vy)
+function move(state, models, grid)
+    @unpack T = grid
+    @unpack ps, q = models[getmodel(state)]
+    @unpack m, f, x, y, vx, vy = state
+    if rand() < ps
+        ax = q * randn()
+        ay = q * randn()
+        x = x + vx * T + ax * T^2 / 2.0
+        y = y + vy * T + ay * T^2 / 2.0
+        vx = vx + ax * T
+        vy = vy + ay * T
+        return State(m, f, x, y, vx, vy)
+    else:
+        return State()
+    end
 end
 
 
-function birth(scan, model)
-    @unpack grid = model
-    idx_r = searchsortedfirst(scan.cdf_r, rand(), lt = <=)
-    idx_fam = searchsortedfirst(scan.cdf_fam, rand(), lt = <=)
-    cidx_fam = CartesianIndex((
-        length(grid.range_f),
-        length(grid.range_a),
-        length(grid.range_m),
-    ))
-    r = grid.range_r[idx_r]
-    f = grid.range_f[cidx_fam[1]]
-    a = grid.range_a[cidx_fam[2]]
-    m = cidx_fam[3]
-    x = r * sin(a)
-    y = r * cos(a)
-    vx = 10.0 * rand()
-    vy = 10.0 * rand()
-    State(m, f, x, y, vx, vy)
+function birth(cdf, models, grid)
+    @unpack rrange, frange, arange, mrange = grid
+    m = sample(cumsum(model.ps for model in models))
+    if m in mrange
+        idx = argsample(cdf.r)
+        r = rrange[idx]
+
+        idx = argsample(cdf.fam)
+        idx = CartesianIndex((length(frange), length(arange), length(mrange)))
+        f = frange[idx[1]]
+        a = arange[idx[2]]
+        m = mrange[idx[3]]
+
+        @unpack vmin, vmax = models[m]
+        vr = vmin + (vmax - vmin) * rand()
+        va = 2π * rand()
+
+        x = r * sin(a)
+        y = r * cos(a)
+        vx = vr * sin(va)
+        vy = vr * cos(va)
+
+        return State(m, f, x, y, vx, vy)
+    else
+        return State()
+    end
 end
 
 
-function logf(state, prevstate, model)
-    @unpack pb, ps, q, T = model
+function logf(state, prevstate, models, grid)
+    @unpack T = grid
     if isempty(state)
         if isempty(prevstate)
             return log(1.0 - pb)
@@ -70,6 +73,8 @@ function logf(state, prevstate, model)
         if isempty(prevstate)
             return log(pb)
         else
+            @assert getmodel(state) == getmodel(prevstate)
+            @unpack q, pb, ps = models[getmodel(state)]
             dvx = state.vx - prevstate.vx
             dvy = state.vy - prevstate.vy
             return log(ps) - (dvx^2 + dvy^2) / (q * T)^2  # TODO
