@@ -3,8 +3,8 @@ function tlim(incidence, mode, depth, celerity)
 end
 
 
-function toa(r, mode, depth, celerity, ic = 0.0, ib = π / 2)
-    sqrt(((2 * mode - 1) * depth)^2 + r^2) / celerity
+function toa(r, mode, depth, celerity, ic, ib)
+    t = sqrt(((2 * mode - 1) * depth)^2 + r^2) / celerity
     tc = tlim(ic, mode, depth, celerity)
     tb = tlim(ib, mode, depth, celerity)
     if tc <= t <= tb
@@ -15,7 +15,7 @@ function toa(r, mode, depth, celerity, ic = 0.0, ib = π / 2)
 end
 
 
-function tdoa(r, mode, depth, celerity, ic = 0.0, ib = π / 2)
+function tdoa(r, mode, depth, celerity, ic, ib)
     toa(r, mode + 1, depth, celerity, ic, ib) -
     toa(r, mode, depth, celerity, ic, ib)
 end

@@ -1,6 +1,7 @@
+import Obsea:
+    window, limit, symbolize, convsame, wrapcauchy, rollprod, argsample
+
 @testset "utils" begin
-    import Obsea:
-        window, limit, symbolize, convsame, wrapcauchy, rollprod, argsample
 
     @testset "window" begin
         @test window(1, 0.5) ≈ [1.0]
@@ -45,7 +46,7 @@
     @testset "argsample" begin
         @test argsample([0.0, 1.0]) === 2
         @test !(argsample([0.0, 0.0]) in [1, 2])
-        @test argsample(ones(10)/10, 10) == collect(1:10)
+        @test argsample(ones(10) / 10, 10) == collect(1:10)
     end
 
 end
