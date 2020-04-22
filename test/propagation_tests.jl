@@ -1,13 +1,10 @@
-import Obsea: tlim, toa, tdoa
+import Obsea: tlim, toa, tdoa, TdoaLut
 
 @testset "propagation" begin
 
-    nmode = 3
-    depth = 4340.0
-    celerity = 1502.0
-    ic = deg2rad(10.0)
-    ib = deg2rad(80.0)
-    
+    models, propa, grid = parameters("parameters.toml", 50.0, 1024)
+    @unpack nmode, depth, celerity, ic, ib = propa
+
     @testset "tlim" begin
         @test tlim(0.0, 1, depth, celerity) == depth / celerity
         @test tlim(0.0, 2, depth, celerity) == 3 * depth / celerity
@@ -27,6 +24,10 @@ import Obsea: tlim, toa, tdoa
         @test isnan(tdoa(0.0, 2, depth, celerity, ic, ib))
         @test isnan(tdoa(100_000.0, 1, depth, celerity, ic, ib))
         @test tdoa(0.0, 1, depth, celerity, 0.0, ib) ≈ 2 * depth / celerity
+    end
+
+    @testset "TdoaLut" begin
+        tdoalut = TdoaLut(propa, grid)
     end
 
 end

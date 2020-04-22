@@ -1,5 +1,5 @@
-function precompute(z, propa, model, grid)
-    @unpack nmode, v, τ = propa
+function precompute(z, tdoalut, model, grid)
+    @unpack nmode, v, τ = tdoalut
     @unpack lam = model
     @unpack τrange = grid
     u = exp.(-lam ./ 2.0) .* besseli.(0, sqrt.(lam .* z))
@@ -66,8 +66,8 @@ struct Itp
 end
 
 
-function precompute(zr, zfam, propa, models, grid)
-    rcdf, citp = precompute(zr, propa, models, grid)
+function precompute(zr, zfam, tdoalut, models, grid)
+    rcdf, citp = precompute(zr, tdoalut, models, grid)
     famcdf, famitp = precompute(zfam, models, grid)
     (Cdf(rcdf, famcdf), Itp(ritp, famitp))
 end

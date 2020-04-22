@@ -20,15 +20,22 @@ function tdoa(r, mode, depth, celerity, ic, ib)
     toa(r, mode, depth, celerity, ic, ib)
 end
 
-# struct TdoaLut
-#     v::Dict{Int64,Array{Float64,1}}
-#     τ::Array{Float64,2}
-#     function TdoaTable(propagation)
-#         v = Dict(mode => window(6*σ[mode], σ[mode]) for mode = 1:length(n))
-#         τ = [
-#             tdoa(r, mode, depth, celerity, ic, ib)
-#             for r in rrange, mode = 1:nmode
-#         ]
-#         new(nmode, depth, celerity, ic, ib, lam, v)
-#     end
-# end
+
+struct TdoaLut
+    nmode
+    v
+    τ
+    function TdoaLut(propa, grid)
+        @unpack nmode, depth, celerity, ic, ib, sigma = propa
+        @unpack rrange = grid
+        v = Dict(
+            mode => window(6 * sigma[mode], sigma[mode])
+            for mode = 1:nmode
+        )
+        τ = [
+            tdoa(r, mode, depth, celerity, ic, ib)
+            for r in rrange, mode = 1:nmode
+        ]
+        new(nmode, v, τ)
+    end
+end

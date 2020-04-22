@@ -26,7 +26,7 @@ n = 5
 nmode = 3
 depth = 4340.0
 celerity = 1502.0
-ic = 30.0
+ic = 10.0
 ib = 80.0
 sigma = [1, 3, 5]
 

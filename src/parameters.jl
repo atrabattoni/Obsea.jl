@@ -12,13 +12,18 @@
 end
 
 
-@with_kw struct Propagation
+struct Propagation
     nmode
     depth
     celerity
     ic
     ib
     sigma
+    function Propagation(; nmode, depth, celerity, ic, ib, sigma)
+        ic = deg2rad(ic)
+        ib = deg2rad(ib)
+        new(nmode, depth, celerity, ic, ib, sigma)
+    end
 end
 
 
