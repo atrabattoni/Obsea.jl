@@ -1,21 +1,21 @@
-function predict!(cloud, scan, params)
+function predict!(cloud, scan, model)
     for particle in cloud
-        push!(particle, transition(particle[end], scan, params))
+        push!(particle, transition(particle[end], scan, model))
     end
 end
 
 
-function transition(state, scan, params)
-    @unpack pb, ps = params
+function transition(state, scan, model)
+    @unpack pb, ps = model
     if isempty(state)
         if rand() < pb
-            return birth(scan, params)
+            return birth(scan, model)
         else
             return EmptyState()
         end
     else
         if rand() < ps
-            return move(state, params)
+            return move(state, model)
         else
             return EmptyState()
         end
@@ -23,8 +23,8 @@ function transition(state, scan, params)
 end
 
 
-function move(state, params)
-    @unpack q, T = params
+function move(state, model)
+    @unpack q, T = model
     ax = q * randn()
     ay = q * randn()
     model = state.model
@@ -37,8 +37,8 @@ function move(state, params)
 end
 
 
-function birth(scan, params)
-    @unpack grid = params
+function birth(scan, model)
+    @unpack grid = model
     idx_r = searchsortedfirst(scan.cdf_r, rand(), lt = <=)
     idx_fam = searchsortedfirst(scan.cdf_fam, rand(), lt = <=)
     cidx_fam = CartesianIndex((
@@ -58,8 +58,8 @@ function birth(scan, params)
 end
 
 
-function logf(state, prevstate, params)
-    @unpack pb, ps, q, T = params
+function logf(state, prevstate, model)
+    @unpack pb, ps, q, T = model
     if isempty(state)
         if isempty(prevstate)
             return log(1.0 - pb)

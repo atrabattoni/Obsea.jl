@@ -36,20 +36,20 @@
         @test cloud[1] == Particle()
     end
 
-    @testset "Parameters" begin
-        import Obsea: Grid, Parameters
+    @testset "Model" begin
+        import Obsea: Grid, Model
         grid = Grid(
             range(0.0, 1000.0, length = 5),
             range(0.0, 10.0, length = 7),
             range(0.0, 360.0, length = 9),
             (1:2),
         )
-        params = Parameters(1.0, 0.1, 0.97, 0.03, 0.5, grid)
-        @test params.T === 1.0
-        @test params.q === 0.1
-        @test params.ps === 0.97
-        @test params.pb === 0.03
-        @test params.pd === 0.5
+        model = Model(1.0, 0.1, 0.97, 0.03, 0.5, grid)
+        @test model.T === 1.0
+        @test model.q === 0.1
+        @test model.ps === 0.97
+        @test model.pb === 0.03
+        @test model.pd === 0.5
     end
 
 end

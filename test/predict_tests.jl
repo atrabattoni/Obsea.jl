@@ -14,27 +14,27 @@
 
     @testset "move" begin
         import Obsea.move
-        params = Parameters(1.0, 0.0, 0.97, 0.03, 0.5, grid)
-        @test move(state, params) == movedstate
+        model = Model(1.0, 0.0, 0.97, 0.03, 0.5, grid)
+        @test move(state, model) == movedstate
     end
 
     @testset "transition" begin
         import Obsea.transition
-        params = Parameters(1.0, 0.0, 0.0, 0.0, 1.0, grid)
-        @test isempty(transition(state, scan, params))
-        @test isempty(transition(∅, scan, params))
-        params = Parameters(1.0, 0.0, 1.0, 1.0, 1.0, grid)
-        @test transition(state, scan, params) == movedstate
-        @test transition(∅, scan, params) isa State
+        model = Model(1.0, 0.0, 0.0, 0.0, 1.0, grid)
+        @test isempty(transition(state, scan, model))
+        @test isempty(transition(∅, scan, model))
+        model = Model(1.0, 0.0, 1.0, 1.0, 1.0, grid)
+        @test transition(state, scan, model) == movedstate
+        @test transition(∅, scan, model) isa State
     end
 
     @testset "logf" begin
         import Obsea.logf
-        params = Parameters(1.0, 0.1, 0.97, 0.03, 0.5, grid)
-        @test logf(state, state, params) === log(params.ps)  # TODO: diff state
-        @test logf(∅, state, params) === log(1.0 - params.ps)
-        @test logf(state, ∅, params) === log(params.pb)
-        @test logf(∅, ∅, params) === log(1.0 - params.pb)
+        model = Model(1.0, 0.1, 0.97, 0.03, 0.5, grid)
+        @test logf(state, state, model) === log(model.ps)  # TODO: diff state
+        @test logf(∅, state, model) === log(1.0 - model.ps)
+        @test logf(state, ∅, model) === log(model.pb)
+        @test logf(∅, ∅, model) === log(1.0 - model.pb)
     end
 
     @testset "predict" begin
@@ -42,13 +42,13 @@
         particle = Particle([state])
         cloud = Cloud([particle])
 
-        params = Parameters(1.0, 0.0, 1.0, 0.0, 0.5, grid) # TODO: pb ≠ 0
-        predict!(cloud, scan, params)
+        model = Model(1.0, 0.0, 1.0, 0.0, 0.5, grid) # TODO: pb ≠ 0
+        predict!(cloud, scan, model)
         @test length(particle) === 2
         @test particle[2] == movedstate
 
-        params = Parameters(1.0, 0.0, 0.0, 0.0, 0.5, grid)
-        predict!(cloud, scan, params)
+        model = Model(1.0, 0.0, 0.0, 0.0, 0.5, grid)
+        predict!(cloud, scan, model)
         @test length(particle) === 3
         @test isempty(particle[3])
     end

@@ -28,13 +28,13 @@ struct Scan
     itp_fam::ScaledInterpolation
 end
 
-@with_kw struct Parameters
-    T::Float64 = NaN
-    q::Float64 = NaN
-    ps::Float64 = NaN
-    pb::Float64 = NaN
-    pd::Float64 = NaN
-    grid::Grid = Grid(0.0:0.0, 0.0:0.0, 0.0:0.0, 0:0)
+struct Model
+    T::Float64
+    q::Float64
+    ps::Float64
+    pb::Float64
+    pd::Float64
+    grid::Grid
 end
 
 function init(N)

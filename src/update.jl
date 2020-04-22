@@ -22,16 +22,16 @@ function Scan(y_r, y_fam, grid)
 end
 
 
-function update!(weights, cloud, scan, params)
+function update!(weights, cloud, scan, model)
     for (i, particle) in enumerate(cloud)
-        weights[i] *= exp(logl(scan, particle[end], params))
+        weights[i] *= exp(logl(scan, particle[end], model))
     end
     weights /= sum(weights)
 end
 
 
-function logl(scan, state, params)
-    @unpack pd = params
+function logl(scan, state, model)
+    @unpack pd = model
     if isempty(state)
         return 0.0
     else

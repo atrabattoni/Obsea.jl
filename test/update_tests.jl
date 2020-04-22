@@ -14,7 +14,7 @@
     ∅ = EmptyState()
     ship = State(1, 5.0, 1000.0, 1000.0, 0.0, 0.0)
     whale = State(2, 5.0, 1000.0, 1000.0, 0.0, 0.0)
-    params = Parameters(1.0, 0.0, 0.97, 0.03, 0.5, grid)
+    model = Model(1.0, 0.0, 0.97, 0.03, 0.5, grid)
 
     @testset "Grid" begin
         @test convert(Float64, grid.range_r.step) == 100.0
@@ -31,16 +31,16 @@
 
     @testset "logl" begin
         import Obsea.logl
-        @test logl(scan, ∅, params) == 0.0
-        @test abs(logl(scan, ship, params)) < 1e-15
-        @test abs(logl(scan, whale, params)) < 1e-15
+        @test logl(scan, ∅, model) == 0.0
+        @test abs(logl(scan, ship, model)) < 1e-15
+        @test abs(logl(scan, whale, model)) < 1e-15
     end
 
     @testset "update" begin
         import Obsea.update!
         weights = [1.0]
         cloud = [[ship]]
-        update!(weights, cloud, scan, params)
+        update!(weights, cloud, scan, model)
         @test weights[1] ≈ 1.0
 
     end
