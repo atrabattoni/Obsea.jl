@@ -9,7 +9,7 @@ using SpecialFunctions
 include("utils.jl")
 include("parameters.jl")
 include("propagation.jl")
-# include("precompute.jl")
+include("precompute.jl")
 # include("particle.jl")
 # include("predict.jl")
 # include("update.jl")

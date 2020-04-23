@@ -1,4 +1,4 @@
-import Obsea: tlim, toa, tdoa, TdoaLut
+import Obsea: tlim, toa, tdoa, TDOALUT
 
 @testset "propagation" begin
 
@@ -26,8 +26,8 @@ import Obsea: tlim, toa, tdoa, TdoaLut
         @test tdoa(0.0, 1, depth, celerity, 0.0, ib) ≈ 2 * depth / celerity
     end
 
-    @testset "TdoaLut" begin
-        tdoalut = TdoaLut(propa, grid)
+    @testset "TDOALUT" begin
+        tdoalut = TDOALUT(propa, grid)
     end
 
 end

@@ -21,15 +21,15 @@ function tdoa(r, mode, depth, celerity, ic, ib)
 end
 
 
-struct TdoaLut
+struct TDOALUT
     nmode
     v
     τ
-    function TdoaLut(propa, grid)
+    function TDOALUT(propa, grid)
         @unpack nmode, depth, celerity, ic, ib, sigma = propa
         @unpack rrange = grid
         v = Dict(
-            mode => window(6 * sigma[mode], sigma[mode])
+            mode => window(6 * sigma[mode] + 1, sigma[mode])
             for mode = 1:nmode
         )
         τ = [

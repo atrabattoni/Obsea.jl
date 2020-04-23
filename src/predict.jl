@@ -39,7 +39,7 @@ function birth(cdf, models, grid)
         idx = argsample(cdf.r)
         r = rrange[idx]
 
-        idx = argsample(cdf.fam)
+        idx = argsample(cdf.a)
         idx = CartesianIndex((length(frange), length(arange), length(mrange)))
         f = frange[idx[1]]
         a = arange[idx[2]]

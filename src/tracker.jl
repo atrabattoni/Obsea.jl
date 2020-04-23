@@ -8,8 +8,8 @@ function track(ceps, az, params, fs, N)
     models, propa, grid = parameters(params, fs, nfft)
 
     # Precompute
-    cdfs = Vector{Cdf}(undef, nt)
-    itps = Vector{Itp}(undef, nt)
+    cdfs = Vector{CDF}(undef, nt)
+    itps = Vector{ITP}(undef, nt)
     for k = 1:nt
         cdfs[k], itps[k] = precompute(ceps[:, k], az[:, k], propa, models, grid)
     end

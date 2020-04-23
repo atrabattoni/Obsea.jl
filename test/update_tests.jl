@@ -26,7 +26,7 @@
 
     @testset "Scan" begin
         @test scan.itp_r(1100.0) ≈ 1.0
-        @test scan.itp_fam(10.0, π / 3, 1) ≈ 1.0
+        @test scan.itp_a(10.0, π / 3, 1) ≈ 1.0
     end
 
     @testset "logl" begin
