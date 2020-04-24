@@ -94,3 +94,7 @@ end
 function ra2xy(r, a)
     r * sin(a), r * cos(a)
 end
+
+function xy2ra(x, y)
+    sqrt(x^2 + y^2), atan(x, y) % 2π
+end

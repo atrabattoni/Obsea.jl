@@ -14,18 +14,19 @@ function precompute(z, tdoalut, models, grid)
         end
     end
     itp = interpolate(ℓ, (BSpline(Cubic(Line(OnGrid()))), NoInterp()))
-    itp = extrapolate(itp, (1.0, Throw()))
+    itp = extrapolate(itp, 1.0)
     itp = scale(itp, rrange, mrange)
     (ℓ, itp)
 end
 
 function precompute(z, models, grid)
     @unpack frange, arange, mrange = grid
+    Nf = length(frange)
     ℓ = zeros(length(frange), length(arange), length(mrange))
     for (k, model) in zip(mrange, models)
         @unpack mrl, n = model
         for (j, a) in enumerate(arange)
-            for i = 1:length(frange)
+            for i = 1:Nf
                 ℓ[i, j, k] = wrapcauchy(z[i], a, mrl)
             end
         end
@@ -39,7 +40,7 @@ function precompute(z, models, grid)
             NoInterp(),
         ),
     )
-    itp = extrapolate(itp, (1.0, Periodic(), Throw()))
+    itp = extrapolate(itp, 1.0)
     itp = scale(itp, frange, arange, mrange)
     (ℓ, itp)
 end

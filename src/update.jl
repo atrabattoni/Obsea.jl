@@ -12,8 +12,7 @@ function likelihoodratio(itp, state, models)
     else
         @unpack m, f, x, y = state
         @unpack pd = models[m]
-        r = sqrt(x^2 + y^2)
-        a = atan(x, y)
+        r, a = xy2ra(x, y)
         return (1.0 - pd) + pd * itp(r, f, a, m)
     end
 end

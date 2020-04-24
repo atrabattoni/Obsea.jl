@@ -1,5 +1,13 @@
 import Obsea:
-    window, limit, symbolize, convsame, wrapcauchy, rollprod, argsample, ra2xy
+    window,
+    limit,
+    symbolize,
+    convsame,
+    wrapcauchy,
+    rollprod,
+    argsample,
+    ra2xy,
+    xy2ra
 
 @testset "utils" begin
 

@@ -1,47 +1,30 @@
-@testset "update.jl" begin
+import Obsea: likelihoodratio, update!
 
-    grid = Grid(
-        (0.0:100.0:30000),
-        range(0.0, 25.0, length = 513),
-        range(0.0, 2π, length = 121),
-        (1:2),
-    )
-    scan = Scan(
-        ones(length(grid.range_r)),
-        ones(length(grid.range_f), length(grid.range_a), 2),
-        grid,
-    )
+@testset "update" begin
+
+    models, propa, grid = parameters("parameters.toml", 50.0, 1024)
+    tdoalut = TDOALUT(propa, grid)
+    zr = zeros(length(grid.τrange))
+    za = zeros(length(grid.frange))
+    ℓ, itp = precompute(zr, za, tdoalut, models, grid)
     ∅ = State()
-    ship = State(1, 5.0, 1000.0, 1000.0, 0.0, 0.0)
-    whale = State(2, 5.0, 1000.0, 1000.0, 0.0, 0.0)
-    model= Model(1.0, 0.0, 0.97, 0.03, 0.5, grid)
+    ship1 = State(1, 5.0, 1000.0, 0.0, 5.0, 5.0)
+    ship2 = State(1, 15.0, 1000.0, 1000.0, 5.0, 5.0)
+    whale = State(2, 15.0, 1000.0, 0.0, 5.0, 5.0)
 
-    @testset "Grid" begin
-        @test convert(Float64, grid.range_r.step) == 100.0
-        @test grid.range_f.len === 513
-        @test convert(Float64, grid.range_f.step) == 25.0 / 512
-        @test grid.range_a[end] === 2π
-        @test collect(grid.range_m) == [1, 2]
-    end
-
-    @testset "Scan" begin
-        @test scan.itp_r(1100.0) ≈ 1.0
-        @test scan.itp_a(10.0, π / 3, 1) ≈ 1.0
-    end
-
-    @testset "logl" begin
-        import Obsea.logl
-        @test logl(scan, ∅, model) == 0.0
-        @test abs(logl(scan, ship, model)) < 1e-15
-        @test abs(logl(scan, whale, model)) < 1e-15
+    @testset "likelihoodratio" begin
+        @test likelihoodratio(itp, ∅, models) === 1.0
+        @test abs(likelihoodratio(itp, ship1, models) - 1) < 10 * eps(1.0)
+        @test likelihoodratio(itp, ship2, models) < 1.0
+        @test likelihoodratio(itp, whale, models) < 1.0
     end
 
     @testset "update" begin
         import Obsea.update!
         weights = [1.0]
-        cloud = [[ship]]
-        update!(weights, cloud, scan, model)
-        @test weights[1] ≈ 1.0
+        cloud = [[whale]]
+        update!(weights, cloud, itp, models)
+        @test weights[1] < 1.0
 
     end
 
