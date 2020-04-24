@@ -9,8 +9,7 @@ end
 
 State() = State(0, NaN, NaN, NaN, NaN, NaN)
 getmodel(s) = s.m
-isempty(s) = iszero(getmodel(s))
-
+Base.isempty(s::State) = iszero(getmodel(s))
 
 const Particle = Vector{State}
 const Cloud = Vector{Particle}

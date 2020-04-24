@@ -60,19 +60,30 @@ end
 
 
 function argsample(cdf)
-    searchsortedfirst(cdf, rand(), lt = <=)
+    @assert 0.0 <= first(cdf) <= last(cdf) <= 1.0 + 10 * eps(1.0)
+    rng = rand()
+    if rng > last(cdf)
+        return 0
+    else
+        return searchsortedfirst(cdf, rng, lt = <=)
+    end
 end
 
 
 function argsample(cdf, N)
+    @assert 0.0 <= first(cdf) <= last(cdf) <= 1.0 + 10 * eps(1.0)
     out = Array{Int64,1}(undef, N)
     j = 1
     s = cdf[j]
     u = rand() / N
     for i = 1:N
-        while s < u
+        while (j != 0) & (s < u)
             j += 1
-            s += cdf[j]
+            if !(j > length(cdf))
+                s += cdf[j]
+            else
+                j = 0
+            end
         end
         out[i] = j
         u += 1 / N

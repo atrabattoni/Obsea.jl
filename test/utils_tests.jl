@@ -45,8 +45,9 @@ import Obsea:
 
     @testset "argsample" begin
         @test argsample([0.0, 1.0]) === 2
-        @test !(argsample([0.0, 0.0]) in [1, 2])
+        @test argsample([0.0, 0.0]) === 0
         @test argsample(ones(10) / 10, 10) == collect(1:10)
+        @test argsample([0.0, 0.0], 10) == fill(0, 10)
     end
 
 end

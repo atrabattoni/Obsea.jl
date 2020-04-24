@@ -1,4 +1,4 @@
-import Obsea: CDF, ITP, precompute
+import Obsea: precompute
 
 @testset "precompute" begin
 
@@ -21,11 +21,11 @@ import Obsea: CDF, ITP, precompute
             sigma = sigma,
       )
       tdoalut = TDOALUT(propa, grid)
-      cdf, itp = precompute(zr, tdoalut, models, grid)
-      y = fill(exp(-lam / 2)^nmode, length(grid.rrange), length(grid.mrange))
-      @test itp.(collect(grid.rrange), fill(1, length(grid.rrange))) ≈ y[:, 1]
-      @test itp.(collect(grid.rrange), fill(2, length(grid.rrange))) ≈ y[:, 2]
-      @test cdf ≈ cumsum(vec(y)) / sum(y)
+      ℓ, itp = precompute(zr, tdoalut, models, grid)
+      @test ℓ ≈
+            fill(exp(-lam / 2)^nmode, length(grid.rrange), length(grid.mrange))
+      @test itp.(collect(grid.rrange), fill(1, length(grid.rrange))) ≈ ℓ[:, 1]
+      @test itp.(collect(grid.rrange), fill(2, length(grid.rrange))) ≈ ℓ[:, 2]
 
       @unpack nmode, depth, celerity, ic, ib, sigma = propa
       propa = Propagation(
@@ -37,15 +37,14 @@ import Obsea: CDF, ITP, precompute
             sigma = sigma,
       )
       tdoalut = TDOALUT(propa, grid)
-      cdf, itp = precompute(zr, tdoalut, models, grid)
-      y = fill(1.0, length(grid.rrange), length(grid.mrange))
-      @test itp.(collect(grid.rrange), fill(1, length(grid.rrange))) ≈ y[:, 1]
-      @test itp.(collect(grid.rrange), fill(2, length(grid.rrange))) ≈ y[:, 2]
-      @test cdf ≈ cumsum(vec(y)) / sum(y)
+      ℓ, itp = precompute(zr, tdoalut, models, grid)
+      @test ℓ ≈ fill(1.0, length(grid.rrange), length(grid.mrange))
+      @test itp.(collect(grid.rrange), fill(1, length(grid.rrange))) ≈ ℓ[:, 1]
+      @test itp.(collect(grid.rrange), fill(2, length(grid.rrange))) ≈ ℓ[:, 2]
 
       za = zeros(length(grid.frange))
-      cdf, itp = precompute(za, models, grid)
-      @test length(cdf) ==
+      ℓ, itp = precompute(za, models, grid)
+      @test length(ℓ) ==
             length(grid.frange) * length(grid.arange) * length(grid.mrange)
       @test itp(rand(grid.frange), rand(grid.arange), rand(grid.mrange)) > 0
 

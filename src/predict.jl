@@ -1,13 +1,16 @@
-function predict!(cloud, cdf, models, grid)
-    for particle in cloud
-        push!(particle, transition(last(particle), cdf, models, grid))
+function predict!(weights, cloud, ℓ, models, grid)
+    @assert length(weights) == length(cloud)
+    for (i, particle) in enumerate(cloud)
+        normalization, state = transition(last(particle), ℓ, models, grid)
+        weights[i] *= normalization
+        push!(particle, state)
     end
 end
 
 
-function transition(state, cdf, models, grid)
+function transition(state, ℓ, models, grid)
     if isempty(state)
-        return birth(cdf, models, grid)
+        return birth(ℓ, models, grid)
     else
         return move(state, models, grid)
     end
@@ -25,38 +28,38 @@ function move(state, models, grid)
         y = y + vy * T + ay * T^2 / 2.0
         vx = vx + ax * T
         vy = vy + ay * T
-        return State(m, f, x, y, vx, vy)
+        return (1.0, State(m, f, x, y, vx, vy))
     else
-        return State()
+        return (1.0, State())
     end
 end
 
 
-function birth(cdf, models, grid)
+function birth(ℓ, models, grid)
     @unpack rrange, frange, arange, mrange = grid
-    m = sample(cumsum(model.ps for model in models))
-    if m in mrange
-        idx = argsample(cdf.r)
-        r = rrange[idx]
-
-        idx = argsample(cdf.a)
-        idx = CartesianIndex((length(frange), length(arange), length(mrange)))
-        f = frange[idx[1]]
-        a = arange[idx[2]]
-        m = mrange[idx[3]]
-
+    N = length(rrange) * length(frange) * length(arange)
+    pbs = [model.pb for model in models]
+    normalization =
+        (1.0 - sum(pbs)) + sum(pbs[m] * sum(ℓ[:, :, :, m]) / N for m in mrange)
+    p = cat([pbs[m] * ℓ[:, :, :, m] / N for m in mrange]..., dims = 4)
+    cdf = cumsum(vec(p)) / normalization
+    idx = argsample(cdf)
+    if !iszero(idx)
+        idx = CartesianIndices(p)[idx]
+        r = rrange[idx[1]]
+        f = frange[idx[2]]
+        a = arange[idx[3]]
+        m = mrange[idx[4]]
         @unpack vmin, vmax = models[m]
         vr = vmin + (vmax - vmin) * rand()
         va = 2π * rand()
-
         x = r * sin(a)
         y = r * cos(a)
         vx = vr * sin(va)
         vy = vr * cos(va)
-
-        return State(m, f, x, y, vx, vy)
+        return (normalization / ℓ[idx], State(m, f, x, y, vx, vy))
     else
-        return State()
+        return (normalization, State())
     end
 end
 

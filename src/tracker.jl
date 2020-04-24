@@ -8,10 +8,17 @@ function track(ceps, az, params, fs, N)
     models, propa, grid = parameters(params, fs, nfft)
 
     # Precompute
-    cdfs = Vector{CDF}(undef, nt)
-    itps = Vector{ITP}(undef, nt)
+    ys = Array{Float64,5}(
+        undef,
+        length(rrange),
+        length(frange),
+        length(arange),
+        length(mrangge),
+        nt,
+    )
+    itps = Vector{ScaledInterpolation}(undef, nt)
     for k = 1:nt
-        cdfs[k], itps[k] = precompute(ceps[:, k], az[:, k], propa, models, grid)
+        ys[k], itps[k] = precompute(ceps[:, k], az[:, k], propa, models, grid)
     end
 
     # Init
