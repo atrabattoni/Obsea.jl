@@ -34,8 +34,15 @@ end
 function convsame(u, v)
     @assert length(u) > length(v)
     @assert isodd(length(v))
-    padding = length(v) ÷ 2
-    conv(u, v)[1+padding:end-padding]
+    pad = length(v) ÷ 2
+    out = zeros(length(u))
+    u = [zeros(pad); u; zeros(pad)]
+    @avx for j = 1:length(out)
+        for i = 1:length(v)
+            out[j] += u[j+i-1] * v[i]
+        end
+    end
+    out
 end
 
 

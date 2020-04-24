@@ -2,6 +2,7 @@ module Obsea
 
 using DSP
 using Interpolations
+using LoopVectorization
 using Parameters
 using Pkg.TOML
 using SpecialFunctions

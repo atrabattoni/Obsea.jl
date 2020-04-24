@@ -32,7 +32,7 @@ import Obsea:
         @test_throws AssertionError convsame(ones(5), ones(2))
         u = rand(10)
         @test convsame(u, ones(1)) == u
-        @test convsame(ones(5), ones(3)) ≈ [2.0, 3.0, 3.0, 3.0, 2.0]
+        @test convsame(ones(5), ones(3)) ≈ [0.0, 3.0, 3.0, 3.0, 0.0]
     end
 
     @testset "wrapcauchy" begin
