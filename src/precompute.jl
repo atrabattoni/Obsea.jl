@@ -1,11 +1,11 @@
 function precompute(z, tdoalut, models, grid)
-    @unpack nmode, v, τ = tdoalut
-    @unpack rrange, mrange, τrange = grid
-    ℓ = ones(length(rrange), length(mrange))
+    @unpack Nmode, v, τ = tdoalut
+    @unpack Nr, Nm, τrange, rrange, mrange = grid
+    ℓ = ones(Nr, Nm)
     for (m, model) in zip(mrange, models)
         @unpack lam = model
         u = exp.(-lam ./ 2.0) .* besseli.(0, sqrt.(lam .* z))
-        for mode = 1:nmode
+        for mode = 1:Nmode
             A = convsame(u, v[mode])
             itp = interpolate(A, BSpline(Cubic(Line(OnGrid()))))
             itp = extrapolate(itp, 1.0)
@@ -20,9 +20,8 @@ function precompute(z, tdoalut, models, grid)
 end
 
 function precompute(z, models, grid)
-    @unpack frange, arange, mrange = grid
-    Nf = length(frange)
-    ℓ = zeros(length(frange), length(arange), length(mrange))
+    @unpack Nf, Na, Nm, frange, arange, mrange = grid
+    ℓ = zeros(Nf, Na, Nm)
     for (k, model) in zip(mrange, models)
         @unpack mrl, n = model
         for (j, a) in enumerate(arange)

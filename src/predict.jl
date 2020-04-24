@@ -45,9 +45,7 @@ end
 
 function birth(ℓ, models, grid)
     pb = [model.pb for model in models]
-    @unpack rrange, frange, arange, mrange = grid
-    Nr, Na, Nf, Nm =
-        length(rrange), length(frange), length(arange), length(mrange)
+    @unpack Nr, Na, Nf, Nm, rrange, frange, arange, mrange = grid
     ℓ0 = 1.0 - sum(pb)
     ℓm =
         [pb[m] * sum(ℓ.r[:, m]) / Nr * sum(ℓ.a[:, :, m]) / Na / Nf for m = 1:Nm]

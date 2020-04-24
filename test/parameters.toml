@@ -23,7 +23,7 @@ mrl = 0.9
 n = 5
 
 [propagation]
-nmode = 3
+Nmode = 3
 depth = 4340.0
 celerity = 1502.0
 ic = 10.0

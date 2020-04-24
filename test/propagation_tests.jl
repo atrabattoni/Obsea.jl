@@ -3,7 +3,7 @@ import Obsea: tlim, toa, tdoa, TDOALUT
 @testset "propagation" begin
 
     models, propa, grid = parameters("parameters.toml", 50.0, 1024)
-    @unpack nmode, depth, celerity, ic, ib = propa
+    @unpack Nmode, depth, celerity, ic, ib = propa
 
     @testset "tlim" begin
         @test tlim(0.0, 1, depth, celerity) == depth / celerity

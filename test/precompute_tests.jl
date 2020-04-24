@@ -9,11 +9,11 @@ import Obsea: precompute
       lams = [models[i].lam for i in grid.mrange]
       @assert all(x -> x == lams[1], lams)
       lam = first(lams)
-      nmode = propa.nmode
+      Nmode = propa.Nmode
 
-      @unpack nmode, depth, celerity, ic, ib, sigma = propa
+      @unpack Nmode, depth, celerity, ic, ib, sigma = propa
       propa = Propagation(
-            nmode = nmode,
+            Nmode = Nmode,
             depth = depth,
             celerity = celerity,
             ic = 0.0,
@@ -23,13 +23,13 @@ import Obsea: precompute
       tdoalut = TDOALUT(propa, grid)
       ℓ, itp = precompute(zr, tdoalut, models, grid)
       @test ℓ ≈
-            fill(exp(-lam / 2)^nmode, length(grid.rrange), length(grid.mrange))
+            fill(exp(-lam / 2)^Nmode, length(grid.rrange), length(grid.mrange))
       @test itp.(collect(grid.rrange), fill(1, length(grid.rrange))) ≈ ℓ[:, 1]
       @test itp.(collect(grid.rrange), fill(2, length(grid.rrange))) ≈ ℓ[:, 2]
 
-      @unpack nmode, depth, celerity, ic, ib, sigma = propa
+      @unpack Nmode, depth, celerity, ic, ib, sigma = propa
       propa = Propagation(
-            nmode = nmode,
+            Nmode = Nmode,
             depth = depth,
             celerity = celerity,
             ic = 90.0,
