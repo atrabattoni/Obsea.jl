@@ -11,7 +11,7 @@ import Obsea: predict!, transition, move, birth, logf
         name = "life",
         q = 0.0,
         vmin = 0.0,
-        vmax = Inf,
+        vmax = 1.0,
         ps = 1.0,
         pb = 1.0,
         pd = NaN,
@@ -23,7 +23,7 @@ import Obsea: predict!, transition, move, birth, logf
         name = "death",
         q = 0.0,
         vmin = 0.0,
-        vmax = Inf,
+        vmax = 1.0,
         ps = 0.0,
         pb = 0.0,
         pd = NaN,
@@ -35,7 +35,7 @@ import Obsea: predict!, transition, move, birth, logf
         name = "death",
         q = 0.0,
         vmin = 0.0,
-        vmax = Inf,
+        vmax = 1.0,
         ps = 0.5,
         pb = 0.5,
         pd = NaN,
@@ -43,7 +43,7 @@ import Obsea: predict!, transition, move, birth, logf
         mrl = NaN,
         n = NaN,
     )
-    dims = (
+    Nr, Nf, Na, Nm = (
         length(grid.rrange),
         length(grid.frange),
         length(grid.arange),
@@ -56,7 +56,7 @@ import Obsea: predict!, transition, move, birth, logf
     end
 
     @testset "birth" begin
-        ℓ = ones(dims)
+        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm))
         @test getmodel(last(birth(ℓ, [life, death], grid))) === 1
         @test getmodel(last(birth(ℓ, [death, life], grid))) === 2
         @test isempty(last(birth(ℓ, [death, death], grid)))
@@ -70,7 +70,7 @@ import Obsea: predict!, transition, move, birth, logf
         @test first(birth(ℓ, [death, death], grid)) ≈ 1.0
 
 
-        ℓ = 2 * ones(dims)
+        ℓ = (r = 2 * ones(Nr, Nm), a = 2 * ones(Nf, Na, Nm))
         normalization = 1
         while true
             normalization, s = birth(ℓ, [half, death], grid)
@@ -87,7 +87,7 @@ import Obsea: predict!, transition, move, birth, logf
         end
         @test normalization < 1.0
 
-        ℓ = ones(dims) / 2
+        ℓ = (r = ones(Nr, Nm) / 2, a = ones(Nf, Na, Nm) / 2)
         while true
             normalization, s = birth(ℓ, [half, death], grid)
             if isempty(s)
@@ -106,7 +106,7 @@ import Obsea: predict!, transition, move, birth, logf
     end
 
     @testset "transition" begin
-        ℓ = ones(dims)
+        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm))
         @test last(transition(state, ℓ, [life, death], grid)) == movedstate
         @test getmodel(last(transition(∅, ℓ, [life, death], grid))) == 1
         @test getmodel(last(transition(∅, ℓ, [death, life], grid))) == 2
@@ -115,7 +115,7 @@ import Obsea: predict!, transition, move, birth, logf
     end
 
     @testset "predict" begin
-        ℓ = ones(dims)
+        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm))
         particle = [state]
         cloud = [particle]
         weights = [1.0]

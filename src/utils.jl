@@ -59,9 +59,9 @@ function rollprod(x, n)
 end
 
 
-function argsample(cdf)
-    @assert 0.0 <= first(cdf) <= last(cdf) <= 1.0 + 10 * eps(1.0)
-    rng = rand()
+function argsample(cdf; scale=1.0)
+    @assert 0.0 <= first(cdf) <= last(cdf) <= scale + 10 * eps(scale)
+    rng = rand() * scale
     if rng > last(cdf)
         return 0
     else
@@ -70,12 +70,12 @@ function argsample(cdf)
 end
 
 
-function argsample(cdf, N)
-    @assert 0.0 <= first(cdf) <= last(cdf) <= 1.0 + 10 * eps(1.0)
+function argsample(cdf, N; scale=1.0)
+    @assert 0.0 <= first(cdf) <= last(cdf) <= scale + 10 * eps(scale)
     out = Array{Int64,1}(undef, N)
     j = 1
     s = cdf[j]
-    u = rand() / N
+    u = rand() * scale / N
     for i = 1:N
         while (j != 0) & (s < u)
             j += 1
@@ -86,7 +86,11 @@ function argsample(cdf, N)
             end
         end
         out[i] = j
-        u += 1 / N
+        u += scale / N
     end
     out
+end
+
+function ra2xy(r, a)
+    r * sin(a), r * cos(a)
 end

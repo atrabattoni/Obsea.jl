@@ -35,31 +35,45 @@ function move(state, models, grid)
 end
 
 
+function randspeed(model)
+    @unpack vmin, vmax = model
+    vr = vmin + (vmax - vmin) * rand()
+    va = 2π * rand()
+    va, vr
+end
+
+
 function birth(ℓ, models, grid)
+    pb = [model.pb for model in models]
     @unpack rrange, frange, arange, mrange = grid
-    N = length(rrange) * length(frange) * length(arange)
-    pbs = [model.pb for model in models]
-    normalization =
-        (1.0 - sum(pbs)) + sum(pbs[m] * sum(ℓ[:, :, :, m]) / N for m in mrange)
-    p = cat([pbs[m] * ℓ[:, :, :, m] / N for m in mrange]..., dims = 4)
-    cdf = cumsum(vec(p)) / normalization
-    idx = argsample(cdf)
-    if !iszero(idx)
-        idx = CartesianIndices(p)[idx]
-        r = rrange[idx[1]]
-        f = frange[idx[2]]
-        a = arange[idx[3]]
-        m = mrange[idx[4]]
-        @unpack vmin, vmax = models[m]
-        vr = vmin + (vmax - vmin) * rand()
-        va = 2π * rand()
-        x = r * sin(a)
-        y = r * cos(a)
-        vx = vr * sin(va)
-        vy = vr * cos(va)
-        return (normalization / ℓ[idx], State(m, f, x, y, vx, vy))
+    Nr, Na, Nf, Nm =
+        length(rrange), length(frange), length(arange), length(mrange)
+    ℓ0 = 1.0 - sum(pb)
+    ℓm =
+        [pb[m] * sum(ℓ.r[:, m]) / Nr * sum(ℓ.a[:, :, m]) / Na / Nf for m = 1:Nm]
+    normalization = ℓ0 + sum(ℓm)
+    # model
+    cdf = cumsum(ℓm)
+    m = argsample(cdf, scale = normalization)
+    if !iszero(m)
+        # range
+        cdf = cumsum(ℓ.r[:, m])
+        idx = argsample(cdf, scale = last(cdf))
+        normalization /= ℓ.r[idx, m]
+        r = rrange[idx]
+        # frequency & azimuth
+        cdf = cumsum(vec(ℓ.a[:, :, m]))
+        idx = argsample(cdf, scale = last(cdf))
+        idx = CartesianIndices(ℓ.a[:, :, m])[idx]
+        normalization /= ℓ.a[idx[1], idx[2], m]
+        f = frange[idx[1]]
+        a = arange[idx[2]]
+        vr, va = randspeed(models[m])
+        x, y, = ra2xy(r, a)
+        vx, vy = ra2xy(vr, va)
+        return normalization, State(m, f, x, y, vx, vy)
     else
-        return (normalization, State())
+        return normalization, State()
     end
 end
 

@@ -44,21 +44,11 @@ function precompute(z, models, grid)
     (ℓ, itp)
 end
 
+
 function precompute(zr, za, tdoalut, models, grid)
     @unpack rrange, frange, arange, mrange = grid
     ℓr, ritp = precompute(zr, tdoalut, models, grid)
     ℓa, aitp = precompute(za, models, grid)
-    ℓ = Array{Float64,4}(
-        undef,
-        length(rrange),
-        length(frange),
-        length(arange),
-        length(mrange),
-    )
-    for ci in CartesianIndices(ℓ)
-        i, j, k, l = Tuple(ci)
-        ℓ[i, j, k, l] = ℓr[i, l] * ℓa[j, k, l]
-    end
     itp(r, f, a, m) = ritp(r, m) * aitp(f, a, m)
-    (ℓ, itp)
+    (r = ℓr, a = ℓa), itp
 end
