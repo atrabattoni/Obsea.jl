@@ -36,10 +36,9 @@ function convsame(u, v)
     @assert isodd(length(v))
     pad = length(v) ÷ 2
     out = zeros(length(u))
-    u = [zeros(pad); u; zeros(pad)]
-    @avx for j = 1:length(out)
+    @avx for j = 1+pad:length(out)-pad
         for i = 1:length(v)
-            out[j] += u[j+i-1] * v[i]
+            out[j] += u[j+i-pad-1] * v[i]
         end
     end
     out
