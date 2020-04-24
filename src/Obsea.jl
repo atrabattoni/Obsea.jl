@@ -13,7 +13,7 @@ include("precompute.jl")
 include("particle.jl")
 include("predict.jl")
 include("update.jl")
-# include("resamplemove.jl")
-# include("tracker.jl")
+include("resamplemove.jl")
+include("tracker.jl")
 
 end # module

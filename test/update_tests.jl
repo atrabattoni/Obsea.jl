@@ -24,7 +24,7 @@ import Obsea: likelihoodratio, update!
         weights = [1.0]
         cloud = [[whale]]
         update!(weights, cloud, itp, models)
-        @test weights[1] < 1.0
+        @test weights[1] ≈ 1.0
 
     end
 

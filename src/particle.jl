@@ -17,6 +17,6 @@ const Weights = Vector{Float64}
 
 function init(N)
     weights = Weights(fill(1 / N, N))
-    cloud = Cloud([Particle() for i = 1:N])
+    cloud = Cloud([Particle([State()]) for i = 1:N])
     return (weights, cloud)
 end

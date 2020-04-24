@@ -1,14 +1,8 @@
-@testset "resample.jl" begin
+import Obsea: resample
 
-    @testset "argsample" begin
-        import Obsea.argsample
-        weights = ones(10)
-        weights /= sum(weights)
-        @test argsample(weights, 10) == collect(1:10)
-    end
+@testset "resample" begin
 
     @testset "resample" begin
-        import Obsea.resample
         particle_1 = [State(1, 0, 0, 0, 0, 0)]
         particle_2 = [State(2, 0, 0, 0, 0, 0)]
         weights = [0.0, 1.0]

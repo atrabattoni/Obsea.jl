@@ -36,7 +36,7 @@ import Obsea: State, getmodel, isempty, Cloud, Weights, init
         @test length(weights) == 10
         @test length(cloud) == 10
         @test weights[1] == 1 / 10
-        @test cloud[1] == Particle()
+        @test cloud[1] == Particle([State()])
     end
 
 end
