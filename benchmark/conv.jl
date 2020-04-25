@@ -109,6 +109,37 @@ function convsame9(u, v)
 end
 
 
+function convsame(u, v)
+    Nu = length(u)
+    Nv = length(v)
+    @assert Nu > Nv
+    @assert isodd(Nv)
+    Nc = (Nv ÷ 2) + 1
+    out = Vector{Float64}(undef, Nu)
+    @inbounds for j = 1:Nc-1
+        s = 0.0
+        for i = Nc-(j-1):Nv
+            s += u[j+i-Nc] * v[i]
+        end
+        out[j] = s
+    end
+    @avx for j = Nc:Nu-Nc
+        s = 0.0
+        for i = 1:Nv
+            s += u[j+i-Nc] * v[i]
+        end
+        out[j] = s
+    end
+    @inbounds for j = Nu-Nc+1:Nu
+        s = 0.0
+        for i = 1:Nc+(Nu-j)
+            s += u[j+i-Nc] * v[i]
+        end
+        out[j] = s
+    end
+    out
+end
+
 @assert convsame2(u, v) ≈ convsame1(u, v)
 @assert convsame3(u, v) ≈ convsame1(u, v)
 @assert convsame4(u, v) ≈ convsame1(u, v)
@@ -117,6 +148,8 @@ end
 @assert convsame7(u, v)[1+3:end-3] ≈ convsame1(u, v)[1+3:end-3]
 @assert convsame8(u, v)[1+3:end-3] ≈ convsame1(u, v)[1+3:end-3]
 @assert convsame9(u, v)[1+3:end-3] ≈ convsame1(u, v)[1+3:end-3]
+@assert convsame(u, v) ≈ convsame1(u, v)
+
 
 println()
 println("reference")
@@ -137,8 +170,10 @@ println("avx other order looping")
 @btime convsame8(u, v);
 println("avx accumulator")
 @btime convsame9(u, v);
+println("avx accumulator with padding")
+@btime convsame(u, v);
 println()
 
 @profiler for i = 1:10000
-    convsame9(u, v)
+    convsame(u, v)
 end

@@ -32,17 +32,34 @@ end
 
 
 function convsame(u, v)
-    @assert length(u) > length(v)
-    @assert isodd(length(v))
-    pad = length(v) ÷ 2
-    out = zeros(length(u))
-    u = [zeros(pad); u; zeros(pad)]
-    @avx for j = 1:length(out)
-        for i = 1:length(v)
-            out[j] += u[j+i-1] * v[i]
+    Nu = length(u)
+    Nv = length(v)
+    @assert Nu > Nv
+    @assert isodd(Nv)
+    Nc = (Nv ÷ 2) + 1
+    out = Vector{Float64}(undef, Nu)
+    @inbounds for j = 1:Nc-1
+        s = 0.0
+        for i = Nc-(j-1):Nv
+            s += u[j+i-Nc] * v[i]
         end
+        out[j] = s
     end
-    out
+    @avx for j = Nc:Nu-Nc
+        s = 0.0
+        for i = 1:Nv
+            s += u[j+i-Nc] * v[i]
+        end
+        out[j] = s
+    end
+    @inbounds for j = Nu-Nc+1:Nu
+        s = 0.0
+        for i = 1:Nc+(Nu-j)
+            s += u[j+i-Nc] * v[i]
+        end
+        out[j] = s
+    end
+    return out
 end
 
 
@@ -66,7 +83,7 @@ function rollprod(x, n)
 end
 
 
-function argsample(cdf; scale=1.0)
+function argsample(cdf; scale = 1.0)
     @assert 0.0 <= first(cdf) <= last(cdf) <= scale + 10 * eps(scale)
     rng = rand() * scale
     if rng > last(cdf)
@@ -77,7 +94,7 @@ function argsample(cdf; scale=1.0)
 end
 
 
-function argsample(cdf, N; scale=1.0)
+function argsample(cdf, N; scale = 1.0)
     @assert 0.0 <= first(cdf) <= last(cdf) <= scale + 10 * eps(scale)
     out = Array{Int64,1}(undef, N)
     j = 1
