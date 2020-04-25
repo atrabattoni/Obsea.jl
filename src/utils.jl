@@ -32,7 +32,6 @@ end
 
 
 function convsame(u, v)
-<<<<<<< HEAD
     Nu = length(u)
     Nv = length(v)
     @assert Nu > Nv
@@ -43,15 +42,6 @@ function convsame(u, v)
         s = 0.0
         for i = Nc-(j-1):Nv
             s += u[j+i-Nc] * v[i]
-=======
-    @assert length(u) > length(v)
-    @assert isodd(length(v))
-    pad = length(v) ÷ 2
-    out = zeros(length(u))
-    @avx for j = 1+pad:length(out)-pad
-        for i = 1:length(v)
-            out[j] += u[j+i-pad-1] * v[i]
->>>>>>> 075f49ff001dce07836b6c7475733fe3455f2504
         end
         out[j] = s
     end
