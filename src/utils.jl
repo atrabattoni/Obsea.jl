@@ -88,7 +88,7 @@ end
 
 
 function argsample(cdf; scale = 1.0)
-    @assert 0.0 <= first(cdf) <= last(cdf) <= scale + 10 * eps(scale)
+    # @assert 0.0 <= first(cdf) <= last(cdf) <= scale + 10 * eps(scale)
     rng = rand() * scale
     if rng > last(cdf)
         return 0
@@ -99,7 +99,7 @@ end
 
 
 function argsample(cdf, N; scale = 1.0)
-    @assert 0.0 <= first(cdf) <= last(cdf) <= scale + 10 * eps(scale)
+    # @assert 0.0 <= first(cdf) <= last(cdf) <= scale + 10 * eps(scale)
     out = Array{Int64,1}(undef, N)
     j = 1
     s = cdf[j]
