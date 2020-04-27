@@ -1,4 +1,4 @@
-import Obsea: State, getmodel, isempty, Cloud, Weights, init
+import Obsea: State, getmodel, isempty, Cloud, Weights, init, final!, estimate
 
 @testset "particle" begin
 
@@ -37,6 +37,24 @@ import Obsea: State, getmodel, isempty, Cloud, Weights, init
         @test length(cloud) == 10
         @test weights[1] == 1 / 10
         @test cloud[1] == Particle([State()])
+    end
+
+    @testset "estimate" begin
+        cloud = [
+            [State(), State()],
+            [State(1, 2.0, 2.0, 2.0, 2.0, 2.0), State(1, 3.0, 3.0, 3.0, 3.0, 3.0)],
+            [State(1, 3.0, 3.0, 3.0, 3.0, 3.0), State(2, 3.0, 3.0, 3.0, 3.0, 3.0)],
+        ]
+        m = [
+            (2 / 3) (1 / 3)
+            0 (1 / 3)
+        ]
+        x = [2.5, 3.0]
+        y = [2.5, 3.0]
+        me, xe, ye = estimate(cloud, 2, 2)
+        @test me ≈ m
+        @test xe ≈ x
+        @test ye ≈ y
     end
 
 end

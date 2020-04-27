@@ -45,7 +45,7 @@ function convsame(u, v)
         end
         out[j] = s
     end
-    @avx for j = Nc:Nu-Nc
+    @inbounds for j = Nc:Nu-Nc
         s = 0.0
         for i = 1:Nv
             s += u[j+i-Nc] * v[i]
