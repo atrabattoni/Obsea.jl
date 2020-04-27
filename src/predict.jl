@@ -56,6 +56,7 @@ function birth(ℓ, models, grid)
     if !iszero(m)
         # range
         cdf = cumsum(ℓ.r[:, m])
+        @show first(cdf) last(cdf) last(cdf) + 10 * eps(last(cdf))
         idx = argsample(cdf, scale = last(cdf))
         normalization /= ℓ.r[idx, m]
         r = rrange[idx]

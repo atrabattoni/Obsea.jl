@@ -37,7 +37,7 @@ function convsame(u, v)
     @assert Nu > Nv
     @assert isodd(Nv)
     Nc = (Nv ÷ 2) + 1
-    out = Vector{Float64}(undef, Nu)
+    out = similar(u)
     @inbounds for j = 1:Nc-1
         s = 0.0
         for i = Nc-(j-1):Nv
@@ -69,15 +69,19 @@ function wrapcauchy(z, a, mrl)
 end
 
 
-function rollprod(x, n)
-    @assert isodd(n)
-    out = similar(x)
-    for j = 1:size(x, 2)
-        for i = 1:size(x, 1)
-            imin = max(1, i - (n ÷ 2))
-            imax = min(size(x, 1), i + (n ÷ 2))
-            out[i, j] = prod(x[imin:imax, j])
-        end
+function rollprod(u, Nv)
+    Nu = length(u)
+    @assert isodd(Nv)
+    Np = Nv ÷ 2
+    out = similar(u)
+    for j = 1:Np
+        out[j] = prod(u[1:j+Np])
+    end
+    for j = Np+1:Nu-Np-1
+        out[j] = prod(u[j-Np:j+Np])
+    end
+    for j = Nu-Np:Nu
+        out[j] = prod(u[j-Np:Nu])
     end
     out
 end

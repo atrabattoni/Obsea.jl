@@ -28,8 +28,8 @@ function precompute(z, models, grid)
             for i = 1:Nf
                 ℓ[i, j, k] = wrapcauchy(z[i], a, mrl)
             end
+            ℓ[:, j, k] = rollprod(ℓ[:, j, k], n)
         end
-        ℓ[:, :, k] = rollprod(ℓ[:, :, k], n)
     end
     itp = interpolate(
         ℓ,

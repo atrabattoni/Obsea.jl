@@ -42,13 +42,9 @@ import Obsea:
     end
 
     @testset "rollprod" begin
-        x = fill(2.0, (3, 2))
+        x = fill(2.0, 3)
         @test_throws AssertionError rollprod(x, 2)
-        @test rollprod(x, 3) == [
-            4.0 4.0
-            8.0 8.0
-            4.0 4.0
-        ]
+        @test rollprod(x, 3) == [4.0, 8.0, 4.0]
     end
 
     @testset "argsample" begin

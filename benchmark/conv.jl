@@ -97,7 +97,7 @@ end
 
 function convsame9(u, v)
     pad = length(v) ÷ 2
-    out = Vector{Float64}(undef, length(u))
+    out = similar(u)
     @avx for j = 1+pad:length(out)-pad
         s = 0.0
         for i = 1:length(v)
@@ -115,7 +115,7 @@ function convsame(u, v)
     @assert Nu > Nv
     @assert isodd(Nv)
     Nc = (Nv ÷ 2) + 1
-    out = Vector{Float64}(undef, Nu)
+    out = similar(u)
     @inbounds for j = 1:Nc-1
         s = 0.0
         for i = Nc-(j-1):Nv
@@ -153,25 +153,25 @@ end
 
 println()
 println("reference")
-@btime convsame1(u, v);
+@btime convsame1($u, $v);
 println("simple implementation")
-@btime convsame2(u, v);
+@btime convsame2($u, $v);
 println("inbounds")
-@btime convsame3(u, v);
+@btime convsame3($u, $v);
 println("inbounds simd")
-@btime convsame4(u, v);
+@btime convsame4($u, $v);
 println("avx")
-@btime convsame5(u, v);
+@btime convsame5($u, $v);
 println("avx no padding")
-@btime convsame6(u, v);
+@btime convsame6($u, $v);
 println("inbounds unrolling")
-@btime convsame7(u, v);
+@btime convsame7($u, $v);
 println("avx other order looping")
-@btime convsame8(u, v);
+@btime convsame8($u, $v);
 println("avx accumulator")
-@btime convsame9(u, v);
+@btime convsame9($u, $v);
 println("avx accumulator with padding")
-@btime convsame(u, v);
+@btime convsame($u, $v);
 println()
 
 @profiler for i = 1:10000
