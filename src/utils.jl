@@ -1,28 +1,39 @@
-function window(n, sigma)
-    v = gaussian(n, sigma)
-    v /= sum(v)
+function window(sigma)
+    if sigma == 0.0
+        return [1.0]
+    else
+        n = 2 * round(Int, 2 * sigma) + 1
+        v = gaussian(n, sigma / n)
+        v /= sum(v)
+        return v
+    end
 end
 
 
-function limit(xrange, xmin, xmax)
-    @assert first(xrange) <= xmin <= xmax <= last(xrange)
-    imin = 1
-    for x in xrange
-        if x >= xmin
+function limit(grid, min, max)
+    @assert first(grid) <= min <= max <= last(grid)
+    i = 1
+    for x in grid
+        if x >= min
             break
         else
-            imin += 1
+            i += 1
         end
     end
-    imax = length(xrange)
-    for x in reverse(xrange)
-        if x <= xmax
+    j = length(grid)
+    for x in reverse(grid)
+        if x <= max
             break
         else
-            imax -= 1
+            j -= 1
         end
     end
-    xrange[imin:imax]
+    grid[i:j]
+end
+
+
+function grid2range(grid)
+    range(first(grid), last(grid), length = length(grid))
 end
 
 

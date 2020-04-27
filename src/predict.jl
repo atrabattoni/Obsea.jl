@@ -45,7 +45,7 @@ end
 
 function birth(ℓ, models, grid)
     pb = [model.pb for model in models]
-    @unpack Nr, Na, Nf, Nm, rrange, frange, arange, mrange = grid
+    @unpack Nr, Na, Nf, Nm = grid
     ℓ0 = 1.0 - sum(pb)
     ℓm =
         [pb[m] * sum(ℓ.r[:, m]) / Nr * sum(ℓ.a[:, :, m]) / Na / Nf for m = 1:Nm]
@@ -58,14 +58,14 @@ function birth(ℓ, models, grid)
         cdf = cumsum(ℓ.r[:, m])
         idx = argsample(cdf, scale = last(cdf))
         normalization /= ℓ.r[idx, m]
-        r = rrange[idx]
+        r = grid.r[idx]
         # frequency & azimuth
         cdf = cumsum(vec(ℓ.a[:, :, m]))
         idx = argsample(cdf, scale = last(cdf))
         idx = CartesianIndices(ℓ.a[:, :, m])[idx]
         normalization /= ℓ.a[idx[1], idx[2], m]
-        f = frange[idx[1]]
-        a = arange[idx[2]]
+        f = grid.f[idx[1]]
+        a = grid.a[idx[2]]
         vr, va = randspeed(models[m])
         x, y, = ra2xy(r, a)
         vx, vy = ra2xy(vr, va)

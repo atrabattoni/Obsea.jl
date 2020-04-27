@@ -1,24 +1,24 @@
 @with_kw struct Model
-    name
-    q
-    vmin
-    vmax
-    ps
-    pb
-    pd
-    lam
-    mrl
-    n
+    name ::String
+    q::Float64
+    vmin::Float64
+    vmax::Float64
+    ps::Float64
+    pb::Float64
+    pd::Float64
+    lam::Float64
+    mrl::Float64
+    n::Int
 end
 
 
 struct Propagation
-    Nmode
-    depth
-    celerity
-    ic
-    ib
-    sigma
+    Nmode::Int
+    depth::Float64
+    celerity::Float64
+    ic::Float64
+    ib::Float64
+    sigma::Vector{Float64}
     function Propagation(; Nmode, depth, celerity, ic, ib, sigma)
         ic = deg2rad(ic)
         ib = deg2rad(ib)
@@ -28,38 +28,34 @@ end
 
 
 struct Grid
-    τrange
-    rrange
-    frange
-    arange
-    mrange
-    Nτ
-    Nr
-    Nf
-    Na
-    Nm
-    T
+    r::Vector{Float64}
+    τ::Vector{Float64}
+    f::Vector{Float64}
+    a::Vector{Float64}
+    Nr::Int
+    Nτ::Int
+    Nf::Int
+    Na::Int
+    Nm::Int
+    T::Float64
     function Grid(Nm, fs, nfft; rmax, rres, fmin, fmax, ares)
-        τrange = range(0, nfft / fs / 2, length = nfft ÷ 2 + 1)
-        rrange = range(0, rmax, step = rres)
-        frange = range(0, fs / 2, length = nfft ÷ 2 + 1)
-        frange = limit(frange, fmin, fmax)
-        arange = range(0, 2π, length = ares + 1)
-        mrange = range(1, Nm, step = 1)
-        Nτ = length(τrange)
-        Nr = length(rrange)
-        Nf = length(frange)
-        Na = length(arange)
-        Nm = length(mrange)
+        r = collect(0.0:rres:rmax)
+        τ = collect(range(0, nfft / fs / 2, length = (nfft ÷ 2) + 1))
+        f = collect(limit(range(0, fs / 2, length = (nfft ÷ 2) + 1), fmin, fmax))
+        a = collect(range(0, 2π, length = ares + 1))
+        Nr = length(r)
+        Nτ = length(τ)
+        Nf = length(f)
+        Na = length(a)
         T = nfft / fs / 2
-        new(τrange, rrange, frange, arange, mrange, Nτ, Nr, Nf, Na, Nm, T)
+        new(r, τ, f, a, Nr, Nτ, Nf, Na, Nm, T)
     end
 end
 
 
 function parameters(dict::Dict, fs, nfft)
     models = [Model(; symbolize(d)...) for d in dict["model"]]
-    Nm = propa = Propagation(; symbolize(dict["propagation"])...)
+    propa = Propagation(; symbolize(dict["propagation"])...)
     grid = Grid(length(models), fs, nfft; symbolize(dict["grid"])...)
     return (models, propa, grid)
 end

@@ -4,8 +4,8 @@ import Obsea: likelihoodratio, update!
 
     models, propa, grid = parameters("parameters.toml", 50.0, 1024)
     tdoalut = TDOALUT(propa, grid)
-    zr = zeros(length(grid.τrange))
-    za = zeros(length(grid.frange))
+    zr = zeros(grid.Nτ)
+    za = zeros(grid.Nf)
     ℓ, itp = precompute(zr, za, tdoalut, models, grid)
     ∅ = State()
     ship1 = State(1, 5.0, 1000.0, 0.0, 5.0, 5.0)

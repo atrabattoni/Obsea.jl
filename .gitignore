@@ -1,5 +1,6 @@
 *.jl.*.cov
 *.jl.cov
 *.jl.mem
+*.npy
 .DS_Store
 /dev/

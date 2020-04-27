@@ -17,7 +17,7 @@ import Obsea: predict!, transition, move, birth, logf
         pd = NaN,
         lam = NaN,
         mrl = NaN,
-        n = NaN,
+        n = 1,
     )
     death = Model(
         name = "death",
@@ -29,7 +29,7 @@ import Obsea: predict!, transition, move, birth, logf
         pd = NaN,
         lam = NaN,
         mrl = NaN,
-        n = NaN,
+        n = 1,
     )
     half = Model(
         name = "death",
@@ -41,13 +41,13 @@ import Obsea: predict!, transition, move, birth, logf
         pd = NaN,
         lam = NaN,
         mrl = NaN,
-        n = NaN,
+        n = 1,
     )
     Nr, Nf, Na, Nm = (
-        length(grid.rrange),
-        length(grid.frange),
-        length(grid.arange),
-        length(grid.mrange),
+        grid.Nr,
+        grid.Nf,
+        grid.Na,
+        length(1:grid.Nm),
     )
 
     @testset "move" begin

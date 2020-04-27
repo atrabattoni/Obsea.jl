@@ -1,30 +1,30 @@
 function precompute(z, tdoalut, models, grid)
     @unpack Nmode, v, τ = tdoalut
-    @unpack Nr, Nm, τrange, rrange, mrange = grid
+    @unpack Nr, Nm = grid
     ℓ = ones(Nr, Nm)
-    for (m, model) in zip(mrange, models)
-        @unpack lam = model
+    for m in 1:Nm
+        @unpack lam = models[m]
         u = exp.(-lam ./ 2.0) .* besseli.(0, sqrt.(lam .* z))
         for mode = 1:Nmode
             A = convsame(u, v[mode])
             itp = interpolate(A, BSpline(Cubic(Line(OnGrid()))))
             itp = extrapolate(itp, 1.0)
-            itp = scale(itp, τrange)
+            itp = scale(itp, grid2range(grid.τ))
             ℓ[:, m] .*= itp.(τ[:, mode])
         end
     end
     itp = interpolate(ℓ, (BSpline(Cubic(Line(OnGrid()))), NoInterp()))
     itp = extrapolate(itp, 1.0)
-    itp = scale(itp, rrange, mrange)
+    itp = scale(itp, grid2range(grid.r), 1:Nm)
     (ℓ, itp)
 end
 
 function precompute(z, models, grid)
-    @unpack Nf, Na, Nm, frange, arange, mrange = grid
+    @unpack Nf, Na, Nm = grid
     ℓ = zeros(Nf, Na, Nm)
-    for (k, model) in zip(mrange, models)
-        @unpack mrl, n = model
-        for (j, a) in enumerate(arange)
+    for k = 1:Nm
+        @unpack mrl, n = models[k]
+        for (j, a) in enumerate(grid.a)
             for i = 1:Nf
                 ℓ[i, j, k] = wrapcauchy(z[i], a, mrl)
             end
@@ -40,13 +40,12 @@ function precompute(z, models, grid)
         ),
     )
     itp = extrapolate(itp, 1.0)
-    itp = scale(itp, frange, arange, mrange)
+    itp = scale(itp, grid2range(grid.f), grid2range(grid.a), 1:Nm)
     (ℓ, itp)
 end
 
 
 function precompute(zr, za, tdoalut, models, grid)
-    @unpack rrange, frange, arange, mrange = grid
     ℓr, ritp = precompute(zr, tdoalut, models, grid)
     ℓa, aitp = precompute(za, models, grid)
     itp(r, f, a, m) = ritp(r, m) * aitp(f, a, m)

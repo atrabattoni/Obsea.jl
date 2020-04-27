@@ -22,19 +22,18 @@ end
 
 
 struct TDOALUT
-    Nmode
-    v
-    τ
+    Nmode::Int
+    v::Dict{Int,Vector{Float64}}
+    τ::Array{Float64,2}
     function TDOALUT(propa, grid)
         @unpack Nmode, depth, celerity, ic, ib, sigma = propa
-        @unpack rrange = grid
         v = Dict(
-            mode => window(6 * sigma[mode] + 1, sigma[mode])
+            mode => window(sigma[mode])
             for mode = 1:Nmode
         )
         τ = [
             tdoa(r, mode, depth, celerity, ic, ib)
-            for r in rrange, mode = 1:Nmode
+            for r in grid.r, mode = 1:Nmode
         ]
         new(Nmode, v, τ)
     end

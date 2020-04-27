@@ -12,8 +12,8 @@ import Obsea:
 @testset "utils" begin
 
     @testset "window" begin
-        @test window(1, 0.5) ≈ [1.0]
-        @test sum(window(7, 0.25)) ≈ 1.0
+        @test window(0.1) ≈ [1.0]
+        @test sum(window(3)) ≈ 1.0
     end
 
     @testset "limit" begin
