@@ -6,7 +6,7 @@ import Obsea: precompute
       models, propa, grid = parameters(dict, 50.0, 1024)
       tdoalut = TDOALUT(propa, grid)
       zr = zeros(grid.Nτ)
-      lams = [models[i].lam for i in 1:grid.Nm]
+      lams = [models[i].lam for i = 1:grid.Nm]
       @assert all(x -> x == lams[1], lams)
       lam = first(lams)
       Nmode = propa.Nmode
@@ -22,8 +22,7 @@ import Obsea: precompute
       )
       tdoalut = TDOALUT(propa, grid)
       ℓ, itp = precompute(zr, tdoalut, models, grid)
-      @test ℓ ≈
-            fill(exp(-lam / 2)^Nmode, grid.Nr, grid.Nm)
+      @test ℓ ≈ fill(exp(-lam / 2)^Nmode, grid.Nr, grid.Nm)
       @test itp.(collect(grid.r), fill(1, grid.Nr)) ≈ ℓ[:, 1]
       @test itp.(collect(grid.r), fill(2, grid.Nr)) ≈ ℓ[:, 2]
 
@@ -44,8 +43,7 @@ import Obsea: precompute
 
       za = zeros(grid.Nf)
       ℓ, itp = precompute(za, models, grid)
-      @test length(ℓ) ==
-            grid.Nf * grid.Na * length(1:grid.Nm)
+      @test length(ℓ) == grid.Nf * grid.Na * length(1:grid.Nm)
       @test itp(rand(grid.f), rand(grid.a), rand(1:grid.Nm)) > 0
 
       @test_nowarn precompute(zr, za, tdoalut, models, grid)

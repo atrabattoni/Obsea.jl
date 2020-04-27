@@ -43,12 +43,7 @@ import Obsea: predict!, transition, move, birth, logf
         mrl = NaN,
         n = 1,
     )
-    Nr, Nf, Na, Nm = (
-        grid.Nr,
-        grid.Nf,
-        grid.Na,
-        length(1:grid.Nm),
-    )
+    Nr, Nf, Na, Nm = (grid.Nr, grid.Nf, grid.Na, length(1:grid.Nm))
 
     @testset "move" begin
         @test last(move(state, [life, death], grid)) == movedstate

@@ -27,10 +27,7 @@ struct TDOALUT
     τ::Array{Float64,2}
     function TDOALUT(propa, grid)
         @unpack Nmode, depth, celerity, ic, ib, sigma = propa
-        v = Dict(
-            mode => window(sigma[mode])
-            for mode = 1:Nmode
-        )
+        v = Dict(mode => window(sigma[mode]) for mode = 1:Nmode)
         τ = [
             tdoa(r, mode, depth, celerity, ic, ib)
             for r in grid.r, mode = 1:Nmode

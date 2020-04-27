@@ -42,8 +42,14 @@ import Obsea: State, getmodel, isempty, Cloud, Weights, init, final!, estimate
     @testset "estimate" begin
         cloud = [
             [State(), State()],
-            [State(1, 2.0, 2.0, 2.0, 2.0, 2.0), State(1, 3.0, 3.0, 3.0, 3.0, 3.0)],
-            [State(1, 3.0, 3.0, 3.0, 3.0, 3.0), State(2, 3.0, 3.0, 3.0, 3.0, 3.0)],
+            [
+                State(1, 2.0, 2.0, 2.0, 2.0, 2.0),
+                State(1, 3.0, 3.0, 3.0, 3.0, 3.0),
+            ],
+            [
+                State(1, 3.0, 3.0, 3.0, 3.0, 3.0),
+                State(2, 3.0, 3.0, 3.0, 3.0, 3.0),
+            ],
         ]
         m = [
             (2 / 3) (1 / 3)

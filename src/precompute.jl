@@ -2,7 +2,7 @@ function precompute(z, tdoalut, models, grid)
     @unpack Nmode, v, τ = tdoalut
     @unpack Nr, Nm = grid
     ℓ = ones(Nr, Nm)
-    for m in 1:Nm
+    for m = 1:Nm
         @unpack lam = models[m]
         u = exp.(-lam ./ 2.0) .* besseli.(0, sqrt.(lam .* z))
         for mode = 1:Nmode

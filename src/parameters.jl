@@ -1,5 +1,5 @@
 @with_kw struct Model
-    name ::String
+    name::String
     q::Float64
     vmin::Float64
     vmax::Float64
@@ -41,7 +41,8 @@ struct Grid
     function Grid(Nm, fs, nfft; rmax, rres, fmin, fmax, ares)
         r = collect(0.0:rres:rmax)
         τ = collect(range(0, nfft / fs / 2, length = (nfft ÷ 2) + 1))
-        f = collect(limit(range(0, fs / 2, length = (nfft ÷ 2) + 1), fmin, fmax))
+        f = collect(range(0, fs / 2, length = (nfft ÷ 2) + 1))
+        f = limit(f, fmin, fmax)
         a = collect(range(0, 2π, length = ares + 1))
         Nr = length(r)
         Nτ = length(τ)
