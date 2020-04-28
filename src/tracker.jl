@@ -14,7 +14,7 @@ function track(ceps, az, params, fs, N)
     Fs = []
     for k = 1:Nt
         println(k, "/", Nt)
-        ℓ = precompute(ceps[:, k], az[:, k], tdoalut, models, grid)
+        ℓ = likelihood(ceps[:, k], az[:, k], tdoalut, models, grid)
         push!(ℓs, ℓ)
         F = distribution(ℓ, models, grid)
         push!(Fs, F)

@@ -1,4 +1,4 @@
-function precompute(z, tdoalut, models, grid)
+function likelihood(z, tdoalut, models, grid)
     @unpack Nmode, v, τ = tdoalut
     @unpack Nr, Nm = grid
     ℓ = ones(Nr, Nm)
@@ -16,7 +16,7 @@ function precompute(z, tdoalut, models, grid)
     ℓ
 end
 
-function precompute(z, models, grid)
+function likelihood(z, models, grid)
     @unpack Nf, Na, Nm = grid
     ℓ = zeros(Nf, Na, Nm)
     for m = 1:Nm
@@ -32,9 +32,9 @@ function precompute(z, models, grid)
     ℓ
 end
 
-function precompute(zr, za, tdoalut, models, grid)
-    ℓr = precompute(zr, tdoalut, models, grid)
-    ℓa = precompute(za, models, grid)
+function likelihood(zr, za, tdoalut, models, grid)
+    ℓr = likelihood(zr, tdoalut, models, grid)
+    ℓa = likelihood(za, models, grid)
     ℓ = (r = ℓr, a = ℓa)
 end
 

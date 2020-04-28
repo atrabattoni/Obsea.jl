@@ -6,7 +6,7 @@ import Obsea: likelihoodratio, update!
     tdoalut = TDOALUT(propa, grid)
     zr = zeros(grid.Nτ)
     za = zeros(grid.Nf)
-    ℓ = precompute(zr, za, tdoalut, models, grid)
+    ℓ = likelihood(zr, za, tdoalut, models, grid)
     ∅ = State()
     ship1 = State(1, 5.0, 1000.0, 0.0, 5.0, 5.0)
     ship2 = State(1, 15.0, 1000.0, 1000.0, 5.0, 5.0)

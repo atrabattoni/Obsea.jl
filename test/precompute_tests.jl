@@ -1,6 +1,6 @@
-import Obsea: precompute, distribution
+import Obsea: likelihood, distribution
 
-@testset "precompute" begin
+@testset "likelihood" begin
 
       dict = TOML.parsefile("parameters.toml")
       models, propa, grid = parameters(dict, 50.0, 1024)
@@ -21,7 +21,7 @@ import Obsea: precompute, distribution
             sigma = sigma,
       )
       tdoalut = TDOALUT(propa, grid)
-      ℓ = precompute(zr, tdoalut, models, grid)
+      ℓ = likelihood(zr, tdoalut, models, grid)
       @test ℓ ≈ fill(exp(-lam / 2)^Nmode, grid.Nr, grid.Nm)
 
       @unpack Nmode, depth, celerity, ic, ib, sigma = propa
@@ -34,13 +34,13 @@ import Obsea: precompute, distribution
             sigma = sigma,
       )
       tdoalut = TDOALUT(propa, grid)
-      ℓ = precompute(zr, tdoalut, models, grid)
+      ℓ = likelihood(zr, tdoalut, models, grid)
       @test ℓ ≈ fill(1.0, grid.Nr, length(1:grid.Nm))
 
       za = zeros(grid.Nf)
-      ℓ = precompute(za, models, grid)
+      ℓ = likelihood(za, models, grid)
       @test length(ℓ) == grid.Nf * grid.Na * length(1:grid.Nm)
 
-      @test_nowarn precompute(zr, za, tdoalut, models, grid)
+      @test_nowarn likelihood(zr, za, tdoalut, models, grid)
 
 end
