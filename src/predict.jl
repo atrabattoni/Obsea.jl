@@ -47,8 +47,7 @@ function birth(ℓ, models, grid)
     pb = [model.pb for model in models]
     @unpack Nr, Na, Nf, Nm = grid
     ℓ0 = 1.0 - sum(pb)
-    ℓm =
-        [pb[m] * sum(ℓ.r[:, m]) / Nr * sum(ℓ.a[:, :, m]) / Na / Nf for m = 1:Nm]
+    ℓm = pb .* ℓ.m
     normalization = ℓ0 + sum(ℓm)
     # model
     cdf = cumsum(ℓm)

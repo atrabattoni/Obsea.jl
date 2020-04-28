@@ -13,7 +13,6 @@ function precompute(z, tdoalut, models, grid)
             ℓ[:, m] .*= itp.(τ[:, mode])
         end
     end
-
     ℓ
 end
 
@@ -34,7 +33,12 @@ end
 
 
 function precompute(zr, za, tdoalut, models, grid)
+    @unpack Nr, Nf, Na, Nm = grid
     ℓr = precompute(zr, tdoalut, models, grid)
     ℓa = precompute(za, models, grid)
-    (r = ℓr, a = ℓa)
+    ℓm = zeros(Nm)
+    for m = 1:Nm
+        @views ℓm[m] =  sum(ℓr[:, m]) / Nr * sum(ℓa[:, :, m]) / Na / Nf
+    end
+    (r = ℓr, a = ℓa, m = ℓm)
 end

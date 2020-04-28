@@ -51,7 +51,7 @@ import Obsea: predict!, transition, move, birth, logf
     end
 
     @testset "birth" begin
-        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm))
+        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm), m = ones(Nm))
         @test getmodel(last(birth(ℓ, [life, death], grid))) === 1
         @test getmodel(last(birth(ℓ, [death, life], grid))) === 2
         @test isempty(last(birth(ℓ, [death, death], grid)))
@@ -65,7 +65,7 @@ import Obsea: predict!, transition, move, birth, logf
         @test first(birth(ℓ, [death, death], grid)) ≈ 1.0
 
 
-        ℓ = (r = 2 * ones(Nr, Nm), a = 2 * ones(Nf, Na, Nm))
+        ℓ = (r = 2 * ones(Nr, Nm), a = 2 * ones(Nf, Na, Nm), m = 2 * ones(Nm))
         normalization = 1
         while true
             normalization, s = birth(ℓ, [half, death], grid)
@@ -82,7 +82,7 @@ import Obsea: predict!, transition, move, birth, logf
         end
         @test normalization < 1.0
 
-        ℓ = (r = ones(Nr, Nm) / 2, a = ones(Nf, Na, Nm) / 2)
+        ℓ = (r = ones(Nr, Nm) / 2, a = ones(Nf, Na, Nm) / 2, m = ones(Nm) / 2)
         while true
             normalization, s = birth(ℓ, [half, death], grid)
             if isempty(s)
@@ -98,10 +98,21 @@ import Obsea: predict!, transition, move, birth, logf
         end
         @test normalization > 1.0
 
+        ℓ = (r = zeros(Nr, Nm), a = zeros(Nf, Na, Nm), m = zeros(Nm))
+        ℓ.r[101, 2] = 10.0
+        ℓ.a[101, 101, 2] = 10.0
+        ℓ.m[2] = 10.0
+        r = grid.r[101]
+        a = grid.a[101]
+        _, b = birth(ℓ, [death, life], grid)
+        @test b.f == grid.f[101]
+        @test b.x == r * sin(a)
+        @test b.y == r * cos(a)
+
     end
 
     @testset "transition" begin
-        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm))
+        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm), m = ones(Nm))
         @test last(transition(state, ℓ, [life, death], grid)) == movedstate
         @test getmodel(last(transition(∅, ℓ, [life, death], grid))) == 1
         @test getmodel(last(transition(∅, ℓ, [death, life], grid))) == 2
@@ -110,7 +121,7 @@ import Obsea: predict!, transition, move, birth, logf
     end
 
     @testset "predict" begin
-        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm))
+        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm), m = ones(Nm))
         particle = [state]
         cloud = [particle]
         weights = [1.0]
