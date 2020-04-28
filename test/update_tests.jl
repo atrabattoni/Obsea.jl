@@ -6,24 +6,24 @@ import Obsea: likelihoodratio, update!
     tdoalut = TDOALUT(propa, grid)
     zr = zeros(grid.Nτ)
     za = zeros(grid.Nf)
-    ℓ, itp = precompute(zr, za, tdoalut, models, grid)
+    ℓ = precompute(zr, za, tdoalut, models, grid)
     ∅ = State()
     ship1 = State(1, 5.0, 1000.0, 0.0, 5.0, 5.0)
     ship2 = State(1, 15.0, 1000.0, 1000.0, 5.0, 5.0)
     whale = State(2, 15.0, 1000.0, 0.0, 5.0, 5.0)
 
     @testset "likelihoodratio" begin
-        @test likelihoodratio(itp, ∅, models) === 1.0
-        @test abs(likelihoodratio(itp, ship1, models) - 1) < 10 * eps(1.0)
-        @test likelihoodratio(itp, ship2, models) < 1.0
-        @test likelihoodratio(itp, whale, models) < 1.0
+        @test likelihoodratio(ℓ, ∅, models, grid) === 1.0
+        @test abs(likelihoodratio(ℓ, ship1, models, grid) - 1) < 10 * eps(1.0)
+        @test likelihoodratio(ℓ, ship2, models, grid) < 1.0
+        @test likelihoodratio(ℓ, whale, models, grid) < 1.0
     end
 
     @testset "update" begin
         import Obsea.update!
         weights = [1.0]
         cloud = [[whale]]
-        update!(weights, cloud, itp, models)
+        update!(weights, cloud, ℓ, models, grid)
         @test weights[1] ≈ 1.0
 
     end

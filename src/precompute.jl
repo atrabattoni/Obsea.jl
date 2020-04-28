@@ -7,16 +7,14 @@ function precompute(z, tdoalut, models, grid)
         u = exp.(-lam ./ 2.0) .* besseli.(0, sqrt.(lam .* z))
         for mode = 1:Nmode
             A = convsame(u, v[mode])
-            itp = interpolate(A, BSpline(Cubic(Line(OnGrid()))))
+            itp = interpolate(A, BSpline(Cubic(Line(OnGrid())))) #
             itp = extrapolate(itp, 1.0)
             itp = scale(itp, grid2range(grid.τ))
             ℓ[:, m] .*= itp.(τ[:, mode])
         end
     end
-    itp = interpolate(ℓ, (BSpline(Cubic(Line(OnGrid()))), NoInterp()))
-    itp = extrapolate(itp, 1.0)
-    itp = scale(itp, grid2range(grid.r), 1:Nm)
-    (ℓ, itp)
+
+    ℓ
 end
 
 function precompute(z, models, grid)
@@ -31,23 +29,12 @@ function precompute(z, models, grid)
             ℓ[:, j, k] = rollprod(ℓ[:, j, k], n)
         end
     end
-    itp = interpolate(
-        ℓ,
-        (
-            BSpline(Cubic(Line(OnGrid()))),
-            BSpline(Cubic(Periodic(OnGrid()))),
-            NoInterp(),
-        ),
-    )
-    itp = extrapolate(itp, 1.0)
-    itp = scale(itp, grid2range(grid.f), grid2range(grid.a), 1:Nm)
-    (ℓ, itp)
+    ℓ
 end
 
 
 function precompute(zr, za, tdoalut, models, grid)
-    ℓr, ritp = precompute(zr, tdoalut, models, grid)
-    ℓa, aitp = precompute(za, models, grid)
-    itp(r, f, a, m) = ritp(r, m) * aitp(f, a, m)
-    (r = ℓr, a = ℓa), itp
+    ℓr = precompute(zr, tdoalut, models, grid)
+    ℓa = precompute(za, models, grid)
+    (r = ℓr, a = ℓa)
 end
