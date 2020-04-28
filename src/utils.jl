@@ -127,7 +127,7 @@ function argsample(cdf, N; scale = 1.0)
         out[i] = j
         u += scale / N
     end
-    out
+    shuffle!(out)
 end
 
 function ra2xy(r, a)

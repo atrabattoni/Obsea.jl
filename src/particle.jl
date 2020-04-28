@@ -15,9 +15,9 @@ const Weights = Vector{Float64}
 
 getmodel(state) = state.m
 
-Base.isempty(state::State) = iszero(getmodel(state))
-Base.isempty(particle::Particle) = isempty(last(particle))
-Base.isempty(cloud::Cloud) = [isempty(particle) for particle in cloud]
+isempty(state::State) = iszero(getmodel(state))
+isempty(particle::Particle) = isempty(last(particle))
+isempty(cloud::Cloud) = [isempty(particle) for particle in cloud]
 
 
 

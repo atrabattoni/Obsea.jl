@@ -4,19 +4,6 @@ function predict!(weights, cloud, ℓ, F, models, grid)
     move!(view(cloud, .!mask), models, grid)
 end
 
-# for (i, particle) in enumerate(cloud)
-#     normalization, state = transition(last(particle), ℓ, F, models, grid)
-#     weights[i] *= normalization
-#     push!(particle, state)
-# end
-
-# function transition(state, ℓ, F, models, grid)
-#     if isempty(state)
-#         return birth(ℓ, F, models, grid)
-#     else
-#         return move(state, models, grid)
-#     end
-# end
 
 function move!(cloud, models, grid)
     for particle in cloud
@@ -43,6 +30,15 @@ function move(state, models, grid)
 end
 
 
+function counts(x, N)
+    d = Dict(i => 0 for i = 0:N)
+    for xi in x
+        d[xi] += 1
+    end
+    d
+end
+
+
 function randspeed(model)
     @unpack vmin, vmax = model
     vr = vmin + (vmax - vmin) * rand()
@@ -51,36 +47,43 @@ function randspeed(model)
 end
 
 
-function birth!(weights, cloud, ℓ, F, models, grid)
-    for (i, particle) in enumerate(cloud)
-        normalization, state = birth(ℓ, F, models, grid)
-        weights[i] *= normalization
-        push!(particle, state)
-    end
+function birth(m, idx, ℓ, models, grid)
+    value = ℓ.r[idx.r, m] * ℓ.a[idx.f, idx.a, m]
+    r = grid.r[idx.r]
+    f = grid.f[idx.f]
+    a = grid.a[idx.a]
+    vr, va = randspeed(models[m])
+    x, y, = ra2xy(r, a)
+    vx, vy = ra2xy(vr, va)
+    return value, State(m, f, x, y, vx, vy)
 end
 
-function birth(ℓ, F, models, grid)
+function birth!(weights, cloud, ℓ, F, models, grid)
     @unpack Nr, Na, Nf, Nm = grid
-    # model
-    normalization = F.Σm
-    m = argsample(F.m, scale = F.Σm)
-    if !iszero(m)
-        # range
-        idx = argsample(F.r[:, m], scale = last(F.r[:, m]))
-        normalization /= ℓ.r[idx, m]
-        r = grid.r[idx]
-        # frequency & azimuth
-        idx = argsample(F.a[:, m], scale = last(F.a[:, m]))
-        idx = CartesianIndices(ℓ.a[:, :, m])[idx]
-        normalization /= ℓ.a[idx[1], idx[2], m]
-        f = grid.f[idx[1]]
-        a = grid.a[idx[2]]
-        vr, va = randspeed(models[m])
-        x, y, = ra2xy(r, a)
-        vx, vy = ra2xy(vr, va)
-        return normalization, State(m, f, x, y, vx, vy)
-    else
-        return normalization, State()
+
+    ms = argsample(F.m, length(cloud), scale = F.Σm)
+    N = counts(ms, Nm)
+
+    idxs = []
+    @views for m = 1:Nm
+        ridx = argsample(F.r[:, m], N[m], scale = last(F.r[:, m]))
+        aidx = argsample(F.a[:, m], N[m], scale = last(F.a[:, m]))
+        aidx = Tuple.(CartesianIndices((Nf, Na))[aidx])
+        idx = [(r = ri, f = fi, a = ai) for (ri, (fi, ai)) in zip(ridx, aidx)]
+        push!(idxs, idx)
+    end
+
+
+    for (i, particle) in enumerate(cloud)
+        m = ms[i]
+        if !iszero(m)
+            idx = pop!(idxs[m])
+            value, state = birth(m, idx, ℓ, models, grid)
+        else
+            value, state = 1.0, State()
+        end
+        weights[i] *= F.Σm / value
+        push!(particle, state)
     end
 end
 
