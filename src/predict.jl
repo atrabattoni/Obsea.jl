@@ -1,21 +1,29 @@
 function predict!(weights, cloud, ℓ, F, models, grid)
-    @assert length(weights) == length(cloud)
-    for (i, particle) in enumerate(cloud)
-        normalization, state = transition(last(particle), ℓ, F, models, grid)
-        weights[i] *= normalization
+    mask = isempty(cloud)
+    birth!(view(weights, mask), view(cloud, mask), ℓ, F, models, grid)
+    move!(view(cloud, .!mask), models, grid)
+end
+
+# for (i, particle) in enumerate(cloud)
+#     normalization, state = transition(last(particle), ℓ, F, models, grid)
+#     weights[i] *= normalization
+#     push!(particle, state)
+# end
+
+# function transition(state, ℓ, F, models, grid)
+#     if isempty(state)
+#         return birth(ℓ, F, models, grid)
+#     else
+#         return move(state, models, grid)
+#     end
+# end
+
+function move!(cloud, models, grid)
+    for particle in cloud
+        state = move(last(particle), models, grid)
         push!(particle, state)
     end
 end
-
-
-function transition(state, ℓ, F, models, grid)
-    if isempty(state)
-        return birth(ℓ, F, models, grid)
-    else
-        return move(state, models, grid)
-    end
-end
-
 
 function move(state, models, grid)
     @unpack T = grid
@@ -28,9 +36,9 @@ function move(state, models, grid)
         y = y + vy * T + ay * T^2 / 2.0
         vx = vx + ax * T
         vy = vy + ay * T
-        return (1.0, State(m, f, x, y, vx, vy))
+        return State(m, f, x, y, vx, vy)
     else
-        return (1.0, State())
+        return State()
     end
 end
 
@@ -42,6 +50,14 @@ function randspeed(model)
     va, vr
 end
 
+
+function birth!(weights, cloud, ℓ, F, models, grid)
+    for (i, particle) in enumerate(cloud)
+        normalization, state = birth(ℓ, F, models, grid)
+        weights[i] *= normalization
+        push!(particle, state)
+    end
+end
 
 function birth(ℓ, F, models, grid)
     @unpack Nr, Na, Nf, Nm = grid

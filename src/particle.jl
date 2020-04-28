@@ -8,12 +8,18 @@ struct State
 end
 
 State() = State(0, NaN, NaN, NaN, NaN, NaN)
-getmodel(s) = s.m
-Base.isempty(s::State) = iszero(getmodel(s))
 
 const Particle = Vector{State}
 const Cloud = Vector{Particle}
 const Weights = Vector{Float64}
+
+getmodel(state) = state.m
+
+Base.isempty(state::State) = iszero(getmodel(state))
+Base.isempty(particle::Particle) = isempty(last(particle))
+Base.isempty(cloud::Cloud) = [isempty(particle) for particle in cloud]
+
+
 
 function init(N)
     weights = fill(1 / N, N)
