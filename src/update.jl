@@ -1,12 +1,12 @@
 function update!(weights, cloud, ℓ, models, grid)
     for (i, particle) in enumerate(cloud)
-        weights[i] *= likelihoodratio(ℓ, last(particle), models, grid)
+        weights[i] *= interp(ℓ, last(particle), models, grid)
     end
     weights ./= sum(weights)
 end
 
 
-function likelihoodratio(ℓ, state, models, grid)
+function interp(ℓ, state, models, grid)
     if isempty(state)
         return 1.0
     else

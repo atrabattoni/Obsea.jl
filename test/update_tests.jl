@@ -1,4 +1,4 @@
-import Obsea: likelihoodratio, update!
+import Obsea: interp, update!
 
 @testset "update" begin
 
@@ -12,11 +12,11 @@ import Obsea: likelihoodratio, update!
     ship2 = State(1, 15.0, 1000.0, 1000.0, 5.0, 5.0)
     whale = State(2, 15.0, 1000.0, 0.0, 5.0, 5.0)
 
-    @testset "likelihoodratio" begin
-        @test likelihoodratio(ℓ, ∅, models, grid) === 1.0
-        @test abs(likelihoodratio(ℓ, ship1, models, grid) - 1) < 10 * eps(1.0)
-        @test likelihoodratio(ℓ, ship2, models, grid) < 1.0
-        @test likelihoodratio(ℓ, whale, models, grid) < 1.0
+    @testset "interp" begin
+        @test interp(ℓ, ∅, models, grid) === 1.0
+        @test abs(interp(ℓ, ship1, models, grid) - 1) < 10 * eps(1.0)
+        @test interp(ℓ, ship2, models, grid) < 1.0
+        @test interp(ℓ, whale, models, grid) < 1.0
     end
 
     @testset "update" begin
