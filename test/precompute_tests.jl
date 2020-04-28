@@ -1,4 +1,4 @@
-import Obsea: precompute
+import Obsea: precompute, distribution
 
 @testset "precompute" begin
 

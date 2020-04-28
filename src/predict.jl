@@ -1,16 +1,16 @@
-function predict!(weights, cloud, ℓ, models, grid)
+function predict!(weights, cloud, ℓ, F, models, grid)
     @assert length(weights) == length(cloud)
     for (i, particle) in enumerate(cloud)
-        normalization, state = transition(last(particle), ℓ, models, grid)
+        normalization, state = transition(last(particle), ℓ, F, models, grid)
         weights[i] *= normalization
         push!(particle, state)
     end
 end
 
 
-function transition(state, ℓ, models, grid)
+function transition(state, ℓ, F, models, grid)
     if isempty(state)
-        return birth(ℓ, models, grid)
+        return birth(ℓ, F, models, grid)
     else
         return move(state, models, grid)
     end
@@ -43,24 +43,18 @@ function randspeed(model)
 end
 
 
-function birth(ℓ, models, grid)
-    pb = [model.pb for model in models]
+function birth(ℓ, F, models, grid)
     @unpack Nr, Na, Nf, Nm = grid
-    ℓ0 = 1.0 - sum(pb)
-    ℓm = pb .* ℓ.m
-    normalization = ℓ0 + sum(ℓm)
     # model
-    cdf = cumsum(ℓm)
-    m = argsample(cdf, scale = normalization)
+    normalization = F.Σm
+    m = argsample(F.m, scale = F.Σm)
     if !iszero(m)
         # range
-        cdf = cumsum(ℓ.r[:, m])
-        idx = argsample(cdf, scale = last(cdf))
+        idx = argsample(F.r[:, m], scale = last(F.r[:, m]))
         normalization /= ℓ.r[idx, m]
         r = grid.r[idx]
         # frequency & azimuth
-        cdf = cumsum(vec(ℓ.a[:, :, m]))
-        idx = argsample(cdf, scale = last(cdf))
+        idx = argsample(F.a[:, m], scale = last(F.a[:, m]))
         idx = CartesianIndices(ℓ.a[:, :, m])[idx]
         normalization /= ℓ.a[idx[1], idx[2], m]
         f = grid.f[idx[1]]

@@ -19,26 +19,46 @@ end
 function precompute(z, models, grid)
     @unpack Nf, Na, Nm = grid
     ℓ = zeros(Nf, Na, Nm)
-    for k = 1:Nm
-        @unpack mrl, n = models[k]
+    for m = 1:Nm
+        @unpack mrl, n = models[m]
         for (j, a) in enumerate(grid.a)
             for i = 1:Nf
-                ℓ[i, j, k] = wrapcauchy(z[i], a, mrl)
+                ℓ[i, j, m] = wrapcauchy(z[i], a, mrl)
             end
-            ℓ[:, j, k] = rollprod(ℓ[:, j, k], n)
+            ℓ[:, j, m] = rollprod(ℓ[:, j, m], n)
         end
+
     end
     ℓ
 end
 
-
 function precompute(zr, za, tdoalut, models, grid)
-    @unpack Nr, Nf, Na, Nm = grid
     ℓr = precompute(zr, tdoalut, models, grid)
     ℓa = precompute(za, models, grid)
-    ℓm = zeros(Nm)
+    ℓ = (r = ℓr, a = ℓa)
+end
+
+
+function distribution(ℓ, models, grid)
+    @unpack Nr, Nf, Na, Nm = grid
+    # model
+    pb = [model.pb for model in models]
+    ℓm = similar(pb)
     for m = 1:Nm
-        @views ℓm[m] =  sum(ℓr[:, m]) / Nr * sum(ℓa[:, :, m]) / Na / Nf
+        @views ℓm[m] = pb[m] * sum(ℓ.r[:, m]) / Nr * sum(ℓ.a[:, :, m]) / Na / Nf
     end
-    (r = ℓr, a = ℓa, m = ℓm)
+    Fm = cumsum(ℓm)
+    ℓ0 = 1.0 - sum(pb)
+    FΣm = ℓ0 + last(Fm)
+    # range
+    Fr = similar(ℓ.r)
+    for m = 1:Nm
+        @views Fr[:, m] = cumsum(ℓ.r[:, m])
+    end
+    # azimuth
+    Fa = Array{Float64,2}(undef, Nf * Na, Nm)
+    for m = 1:Nm
+        @views Fa[:, m] = cumsum(vec(ℓ.a[:, :, m]))
+    end
+    F = (r = Fr, a = Fa, m = Fm, Σm = FΣm)
 end

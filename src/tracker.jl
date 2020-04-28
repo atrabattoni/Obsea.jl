@@ -11,10 +11,13 @@ function track(ceps, az, params, fs, N)
     # Precompute
 
     ℓs = []
+    Fs = []
     for k = 1:Nt
         println(k, "/", Nt)
         ℓ = precompute(ceps[:, k], az[:, k], tdoalut, models, grid)
         push!(ℓs, ℓ)
+        F = distribution(ℓ, models, grid)
+        push!(Fs, F)
     end
 
     # Initialize
@@ -22,7 +25,7 @@ function track(ceps, az, params, fs, N)
 
     # Track
     for k = 1:Nt
-        predict!(weights, cloud, ℓs[k], models, grid)
+        predict!(weights, cloud, ℓs[k], Fs[k], models, grid)
         update!(weights, cloud, ℓs[k], models, grid)
         weights, cloud = resample(weights, cloud)
     end

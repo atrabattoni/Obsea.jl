@@ -52,30 +52,54 @@ import Obsea: predict!, transition, move, birth, logf
 
     @testset "birth" begin
         ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm), m = ones(Nm))
-        @test getmodel(last(birth(ℓ, [life, death], grid))) === 1
-        @test getmodel(last(birth(ℓ, [death, life], grid))) === 2
-        @test isempty(last(birth(ℓ, [death, death], grid)))
-        @test !isempty(last(birth(ℓ, [half, half], grid)))
-        @test first(birth(ℓ, [life, death], grid)) ≈ 1.0
-        @test first(birth(ℓ, [death, life], grid)) ≈ 1.0
-        @test first(birth(ℓ, [death, death], grid)) ≈ 1.0
-        @test first(birth(ℓ, [half, half], grid)) ≈ 1.0
-        @test first(birth(ℓ, [half, death], grid)) ≈ 1.0
-        @test first(birth(ℓ, [death, half], grid)) ≈ 1.0
-        @test first(birth(ℓ, [death, death], grid)) ≈ 1.0
+
+        F = distribution(ℓ,[life, death], grid)
+        @test getmodel(last(birth(ℓ, F, [life, death], grid))) === 1
+
+        F = distribution(ℓ,[death, life], grid)
+        @test getmodel(last(birth(ℓ, F, [death, life], grid))) === 2
+
+        F = distribution(ℓ,[death, death], grid)
+        @test isempty(last(birth(ℓ, F, [death, death], grid)))
+
+        F = distribution(ℓ,[half, half], grid)
+        @test !isempty(last(birth(ℓ, F, [half, half], grid)))
+
+        F = distribution(ℓ,[life, death], grid)
+        @test first(birth(ℓ, F, [life, death], grid)) ≈ 1.0
+
+        F = distribution(ℓ,[death, life], grid)
+        @test first(birth(ℓ, F, [death, life], grid)) ≈ 1.0
+
+        F = distribution(ℓ,[death, death], grid)
+        @test first(birth(ℓ, F, [death, death], grid)) ≈ 1.0
+
+        F = distribution(ℓ,[half, half], grid)
+        @test first(birth(ℓ, F, [half, half], grid)) ≈ 1.0
+
+        F = distribution(ℓ,[half, death], grid)
+        @test first(birth(ℓ, F, [half, death], grid)) ≈ 1.0
+
+        F = distribution(ℓ,[death, half], grid)
+        @test first(birth(ℓ, F, [death, half], grid)) ≈ 1.0
+
+        F = distribution(ℓ,[death, death], grid)
+        @test first(birth(ℓ, F, [death, death], grid)) ≈ 1.0
 
 
         ℓ = (r = 2 * ones(Nr, Nm), a = 2 * ones(Nf, Na, Nm), m = 2 * ones(Nm))
         normalization = 1
         while true
-            normalization, s = birth(ℓ, [half, death], grid)
+            F = distribution(ℓ,[half, death], grid)
+            normalization, s = birth(ℓ, F, [half, death], grid)
             if isempty(s)
                 break
             end
         end
         @test normalization > 1.0
         while true
-            normalization, s = birth(ℓ, [half, death], grid)
+            F = distribution(ℓ,[half, death], grid)
+            normalization, s = birth(ℓ, F, [half, death], grid)
             if !isempty(s)
                 break
             end
@@ -84,14 +108,16 @@ import Obsea: predict!, transition, move, birth, logf
 
         ℓ = (r = ones(Nr, Nm) / 2, a = ones(Nf, Na, Nm) / 2, m = ones(Nm) / 2)
         while true
-            normalization, s = birth(ℓ, [half, death], grid)
+            F = distribution(ℓ,[half, death], grid)
+            normalization, s = birth(ℓ, F, [half, death], grid)
             if isempty(s)
                 break
             end
         end
         @test normalization < 1.0
         while true
-            normalization, s = birth(ℓ, [half, death], grid)
+            F = distribution(ℓ,[half, death], grid)
+            normalization, s = birth(ℓ, F, [half, death], grid)
             if !isempty(s)
                 break
             end
@@ -104,7 +130,8 @@ import Obsea: predict!, transition, move, birth, logf
         ℓ.m[2] = 10.0
         r = grid.r[101]
         a = grid.a[101]
-        _, b = birth(ℓ, [death, life], grid)
+        F = distribution(ℓ,[death, life], grid)
+        _, b = birth(ℓ, F, [death, life], grid)
         @test b.f == grid.f[101]
         @test b.x == r * sin(a)
         @test b.y == r * cos(a)
@@ -113,11 +140,21 @@ import Obsea: predict!, transition, move, birth, logf
 
     @testset "transition" begin
         ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm), m = ones(Nm))
-        @test last(transition(state, ℓ, [life, death], grid)) == movedstate
-        @test getmodel(last(transition(∅, ℓ, [life, death], grid))) == 1
-        @test getmodel(last(transition(∅, ℓ, [death, life], grid))) == 2
-        @test isempty(last(transition(state, ℓ, [death, death], grid)))
-        @test isempty(last(transition(∅, ℓ, [death, death], grid)))
+
+        F = distribution(ℓ, [life, death], grid)
+        @test last(transition(state, ℓ, F, [life, death], grid)) == movedstate
+
+        F = distribution(ℓ, [life, death], grid)
+        @test getmodel(last(transition(∅, ℓ, F, [life, death], grid))) == 1
+
+        F = distribution(ℓ, [death, life], grid)
+        @test getmodel(last(transition(∅, ℓ, F, [death, life], grid))) == 2
+
+        F = distribution(ℓ, [death, death], grid)
+        @test isempty(last(transition(state, ℓ, F, [death, death], grid)))
+
+        F = distribution(ℓ, [death, death], grid)
+        @test isempty(last(transition(∅, ℓ, F, [death, death], grid)))
     end
 
     @testset "predict" begin
@@ -125,11 +162,13 @@ import Obsea: predict!, transition, move, birth, logf
         particle = [state]
         cloud = [particle]
         weights = [1.0]
-        predict!(weights, cloud, ℓ, [life, death], grid)
+        F = distribution(ℓ, [life, death], grid)
+        predict!(weights, cloud, ℓ, F, [life, death], grid)
         @test length(particle) === 2
         @test particle[2] == movedstate
 
-        predict!(weights, cloud, ℓ, [death, death], grid)
+        F = distribution(ℓ, [death, death], grid)
+        predict!(weights, cloud, ℓ, F, [death, death], grid)
         @test length(particle) === 3
         @test isempty(particle[3])
     end
