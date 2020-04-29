@@ -7,7 +7,7 @@ function likelihood(z, tdoalut, models, grid)
         u = exp.(-lam ./ 2.0) .* besseli.(0, sqrt.(lam .* z))
         for mode = 1:Nmode
             A = convsame(u, v[mode])
-            itp = interpolate(A, BSpline(Cubic(Line(OnGrid())))) #
+            itp = interpolate(A, BSpline(Linear())) #
             itp = extrapolate(itp, 1.0)
             itp = scale(itp, grid2range(grid.τ))
             ℓ[:, m] .*= itp.(τ[:, mode])
@@ -43,7 +43,9 @@ function marginalize(ℓr, ℓa, models, grid)
     pb = [model.pb for model in models]
     ℓm = similar(pb)
     @inbounds for m = 1:Nm
-        @views ℓm[m] = pb[m] * sum(ℓr[:, m]) / Nr * sum(ℓa[:, :, m]) / Na / Nf
+        @views ℓm[m] =
+            pb[m] * sum(grid.r .* ℓr[:, m]) / sum(grid.r) * sum(ℓa[:, :, m]) /
+            Na / Nf
     end
     ℓ0 = 1.0 - sum(pb)
     ℓΣm = ℓ0 + sum(ℓm)
