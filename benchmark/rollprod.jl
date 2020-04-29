@@ -1,9 +1,11 @@
+using BenchmarkTools
+
 function rollprod1(u, Nv)
     @assert isodd(Nv)
     out = similar(u)
     for i = 1:length(u)
-        imin = max(1, i - (n ÷ 2))
-        imax = min(size(u, 1), i + (n ÷ 2))
+        imin = max(1, i - (Nv ÷ 2))
+        imax = min(size(u, 1), i + (Nv ÷ 2))
         out[i] = prod(u[imin:imax])
     end
     out
@@ -12,19 +14,19 @@ end
 function rollprod2(u, Nv)
     Nu = length(u)
     @assert isodd(Nv)
-    Np = Nv ÷ 2
+    Nc = (Nv ÷ 2) + 1
     out = similar(u)
-    cum = cumprod(u)
-    for j = 1:Np
-        out[j] = cum[j + Np] / cum[1]
+    cum = cumsum(log.(u))
+    for j = 1:Nc
+        out[j] = cum[j + Nc - 1]
     end
-    for j = Np+1:Nu-Np-1
-        out[j] = cum[j + Np] / cum[j - Np]
+    for j = Nc+1:Nu-Nc
+        out[j] = cum[j + Nc - 1] - cum[j - Nc]
     end
-    for j = Nu-Np:Nu
-        out[j] = cum[Nu] / cum[j - Np]
+    for j = Nu-Nc+1:Nu
+        out[j] = cum[Nu] - cum[j - Nc]
     end
-    out
+    exp.(out)
 end
 
 function rollprod(u, Nv)
@@ -48,7 +50,7 @@ end
 u = rand(513)
 Nv = 7
 
-@assert rollprod2(u, Nv) == rollprod1(u, Nv)
+@assert all(rollprod2(u, Nv) .≈ rollprod1(u, Nv))
 @assert rollprod(u, Nv) == rollprod1(u, Nv)
 
 println()
@@ -58,3 +60,4 @@ println("splited loop")
 @btime rollprod($u, $Nv)
 println("cumsum")
 @btime rollprod2($u, $Nv)
+println()
