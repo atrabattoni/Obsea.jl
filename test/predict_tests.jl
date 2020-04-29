@@ -1,4 +1,14 @@
-import Obsea: predict!, transition, move, birth, logf
+import Obsea:
+    predict!,
+    birth!,
+    ℓ2idxs,
+    counts,
+    idx2state,
+    randspeed,
+    idx2norm,
+    move!,
+    move,
+    logf
 
 @testset "predict.jl" begin
 
@@ -50,136 +60,52 @@ import Obsea: predict!, transition, move, birth, logf
         @test isempty(move(state, [death, death], grid))
     end
 
-    @testset "birth" begin
-        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm), m = ones(Nm))
-
-        F = distribution(ℓ, [life, death], grid)
-        @test getmodel(last(birth(ℓ, F, [life, death], grid))) === 1
-
-        F = distribution(ℓ, [death, life], grid)
-        @test getmodel(last(birth(ℓ, F, [death, life], grid))) === 2
-
-        F = distribution(ℓ, [death, death], grid)
-        @test isempty(last(birth(ℓ, F, [death, death], grid)))
-
-        F = distribution(ℓ, [half, half], grid)
-        @test !isempty(last(birth(ℓ, F, [half, half], grid)))
-
-        F = distribution(ℓ, [life, death], grid)
-        @test first(birth(ℓ, F, [life, death], grid)) ≈ 1.0
-
-        F = distribution(ℓ, [death, life], grid)
-        @test first(birth(ℓ, F, [death, life], grid)) ≈ 1.0
-
-        F = distribution(ℓ, [death, death], grid)
-        @test first(birth(ℓ, F, [death, death], grid)) ≈ 1.0
-
-        F = distribution(ℓ, [half, half], grid)
-        @test first(birth(ℓ, F, [half, half], grid)) ≈ 1.0
-
-        F = distribution(ℓ, [half, death], grid)
-        @test first(birth(ℓ, F, [half, death], grid)) ≈ 1.0
-
-        F = distribution(ℓ, [death, half], grid)
-        @test first(birth(ℓ, F, [death, half], grid)) ≈ 1.0
-
-        F = distribution(ℓ, [death, death], grid)
-        @test first(birth(ℓ, F, [death, death], grid)) ≈ 1.0
-
-
-        ℓ = (r = 2 * ones(Nr, Nm), a = 2 * ones(Nf, Na, Nm), m = 2 * ones(Nm))
-        normalization = 1
-        while true
-            F = distribution(ℓ, [half, death], grid)
-            normalization, s = birth(ℓ, F, [half, death], grid)
-            if isempty(s)
-                break
-            end
-        end
-        @test normalization > 1.0
-        while true
-            F = distribution(ℓ, [half, death], grid)
-            normalization, s = birth(ℓ, F, [half, death], grid)
-            if !isempty(s)
-                break
-            end
-        end
-        @test normalization < 1.0
-
-        ℓ = (r = ones(Nr, Nm) / 2, a = ones(Nf, Na, Nm) / 2, m = ones(Nm) / 2)
-        while true
-            F = distribution(ℓ, [half, death], grid)
-            normalization, s = birth(ℓ, F, [half, death], grid)
-            if isempty(s)
-                break
-            end
-        end
-        @test normalization < 1.0
-        while true
-            F = distribution(ℓ, [half, death], grid)
-            normalization, s = birth(ℓ, F, [half, death], grid)
-            if !isempty(s)
-                break
-            end
-        end
-        @test normalization > 1.0
-
-        ℓ = (r = zeros(Nr, Nm), a = zeros(Nf, Na, Nm), m = zeros(Nm))
-        ℓ.r[101, 2] = 10.0
-        ℓ.a[101, 101, 2] = 10.0
-        ℓ.m[2] = 10.0
-        r = grid.r[101]
-        a = grid.a[101]
-        F = distribution(ℓ, [death, life], grid)
-        _, b = birth(ℓ, F, [death, life], grid)
-        @test b.f == grid.f[101]
-        @test b.x == r * sin(a)
-        @test b.y == r * cos(a)
-
+    @testset "distribution, ℓ2idxs, idx2state, idx2norm" begin
+        idx = (r = 57, f = 33, a = 101, m = 2)
+        value = 10.0
+        N = 3
+        ℓ = (
+            r = zeros(Nr, Nm),
+            a = zeros(Nf, Na, Nm),
+            m = zeros(Nm),
+            Σm = value * value / Nr / Nf / Na,
+        )
+        ℓ.r[idx.r, idx.m] = value
+        ℓ.a[idx.f, idx.a, idx.m] = value
+        ℓ.m[idx.m] = value * value / Nr / Nf / Na
+        r = grid.r[idx.r]
+        f = grid.f[idx.f]
+        a = grid.a[idx.a]
+        m = idx.m
+        x = r * sin(a)
+        y = r * cos(a)
+        # ℓ2idxs
+        idxs = ℓ2idxs(ℓ, N, grid)
+        @test length(idxs) == N
+        @test idxs == fill(idx, N)
+        # idx2state
+        s = idx2state(idxs[1], [death, life], grid)
+        @test s.m == m
+        @test s.f == f
+        @test s.x == x
+        @test s.y == y
+        # idx2norm
+        norm = idx2norm(idxs[1], ℓ)
+        @test norm == ℓ.Σm / ℓ.r[idx.r, idx.m] / ℓ.a[idx.f, idx.a, idx.m]
     end
 
-    # @testset "transition" begin
-    #     ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm), m = ones(Nm))
-    #
-    #     F = distribution(ℓ, [life, death], grid)
-    #     @test last(transition(state, ℓ, F, [life, death], grid)) == movedstate
-    #
-    #     F = distribution(ℓ, [life, death], grid)
-    #     @test getmodel(last(transition(∅, ℓ, F, [life, death], grid))) == 1
-    #
-    #     F = distribution(ℓ, [death, life], grid)
-    #     @test getmodel(last(transition(∅, ℓ, F, [death, life], grid))) == 2
-    #
-    #     F = distribution(ℓ, [death, death], grid)
-    #     @test isempty(last(transition(state, ℓ, F, [death, death], grid)))
-    #
-    #     F = distribution(ℓ, [death, death], grid)
-    #     @test isempty(last(transition(∅, ℓ, F, [death, death], grid)))
-    # end
-
     @testset "predict" begin
-        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm), m = ones(Nm))
+        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm), m = ones(Nm), Σm = Nm)
         particle = [state]
         cloud = [particle]
         weights = [1.0]
-        F = distribution(ℓ, [life, death], grid)
-        predict!(weights, cloud, ℓ, F, [life, death], grid)
+        predict!(weights, cloud, ℓ, [life, death], grid)
         @test length(particle) === 2
         @test particle[2] == movedstate
 
-        F = distribution(ℓ, [death, death], grid)
-        predict!(weights, cloud, ℓ, F, [death, death], grid)
+        predict!(weights, cloud, ℓ, [death, death], grid)
         @test length(particle) === 3
         @test isempty(particle[3])
     end
-    #
-    # @testset "logf" begin
-    #     model = Model(1.0, 0.1, 0.97, 0.03, 0.5, grid)
-    #     @test logf(state, state, model) === log(model.ps)  # TODO: diff state
-    #     @test logf(∅, state, model) === log(1.0 - model.ps)
-    #     @test logf(state, ∅, model) === log(model.pb)
-    #     @test logf(∅, ∅, model) === log(1.0 - model.pb)
-    # end
-
 
 end

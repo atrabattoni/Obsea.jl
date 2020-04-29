@@ -97,37 +97,26 @@ function rollprod(u, Nv)
     out
 end
 
-
-function argsample(cdf; scale = 1.0)
-    # @assert 0.0 <= first(cdf) <= last(cdf) <= scale + 10 * eps(scale)
-    rng = rand() * scale
-    if rng > last(cdf)
-        return 0
-    else
-        return searchsortedfirst(cdf, rng, lt = <=)
-    end
-end
-
-
-function argsample(cdf, N; scale = 1.0)
-    # @assert 0.0 <= first(cdf) <= last(cdf) <= scale + 10 * eps(scale)
-    out = Array{Int64,1}(undef, N)
+function argsample(ℓ, N; scale = sum(ℓ))
+    step = scale / N
+    u = rand() * step
+    out = Vector{Int}(undef, N)
     j = 1
-    s = cdf[j]
-    u = rand() * scale / N
+    s = ℓ[j]
     for i = 1:N
-        while (j != 0) & (s < u)
+        while s < u
             j += 1
-            if !(j > length(cdf))
-                s += cdf[j]
+            if j <= length(ℓ)
+                s += ℓ[j]
             else
+                s = Inf
                 j = 0
             end
         end
         out[i] = j
-        u += scale / N
+        u += step
     end
-    shuffle!(out)
+    out
 end
 
 function ra2xy(r, a)

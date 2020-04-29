@@ -1,9 +1,75 @@
-function predict!(weights, cloud, ℓ, F, models, grid)
+function predict!(weights, cloud, ℓ, models, grid)
     mask = isempty(cloud)
-    birth!(view(weights, mask), view(cloud, mask), ℓ, F, models, grid)
+    birth!(view(weights, mask), view(cloud, mask), ℓ, models, grid)
     move!(view(cloud, .!mask), models, grid)
 end
 
+function birth!(weights, cloud, ℓ, models, grid)
+    idxs = ℓ2idxs(ℓ, length(cloud), grid)
+    for (j, idx, particle) in zip(1:length(weights), idxs, cloud)
+        weights[j] *= idx2norm(idx, ℓ)
+        push!(particle, idx2state(idx, models, grid))
+    end
+end
+
+function ℓ2idxs(ℓ, N, grid)
+    @unpack Nr, Na, Nf, Nm = grid
+    midxs = argsample(ℓ.m, N, scale = ℓ.Σm)
+    Nc = counts(midxs, Nm)
+    idxs = Array{NamedTuple{(:r, :f, :a, :m),NTuple{4,Int}}}(undef, N)
+    j = 1
+    for m = 1:Nm
+        @views ridxs = argsample(ℓ.r[:, m], Nc[m])
+        @views faidxs = argsample(vec(ℓ.a[:, :, m]), Nc[m])
+        faidxs = Tuple.(CartesianIndices((Nf, Na))[faidxs])
+        for (r, (f, a)) in zip(ridxs, faidxs)
+            idxs[j] = (r = r, f = f, a = a, m = m)
+            j += 1
+        end
+    end
+    while j <= N
+        idxs[j] = (r = 0, f = 0, a = 0, m = 0)
+        j += 1
+    end
+    shuffle!(idxs)
+end
+
+function counts(x, N)
+    d = Dict(i => 0 for i = 0:N)
+    for xi in x
+        d[xi] += 1
+    end
+    d
+end
+
+function idx2state(idx, models, grid)
+    if !iszero(idx.m)
+        r = grid.r[idx.r]
+        f = grid.f[idx.f]
+        a = grid.a[idx.a]
+        vr, va = randspeed(models[idx.m])
+        x, y, = ra2xy(r, a)
+        vx, vy = ra2xy(vr, va)
+        return State(idx.m, f, x, y, vx, vy)
+    else
+        return State()
+    end
+end
+
+function randspeed(model)
+    @unpack vmin, vmax = model
+    vr = vmin + (vmax - vmin) * rand()
+    va = 2π * rand()
+    va, vr
+end
+
+function idx2norm(idx, ℓ)
+    if !iszero(idx.m)
+        return ℓ.Σm / ℓ.r[idx.r, idx.m] / ℓ.a[idx.f, idx.a, idx.m]
+    else
+        return ℓ.Σm
+    end
+end
 
 function move!(cloud, models, grid)
     for particle in cloud
@@ -28,65 +94,6 @@ function move(state, models, grid)
         return State()
     end
 end
-
-
-function counts(x, N)
-    d = Dict(i => 0 for i = 0:N)
-    for xi in x
-        d[xi] += 1
-    end
-    d
-end
-
-
-function randspeed(model)
-    @unpack vmin, vmax = model
-    vr = vmin + (vmax - vmin) * rand()
-    va = 2π * rand()
-    va, vr
-end
-
-
-function birth(m, idx, ℓ, models, grid)
-    value = ℓ.r[idx.r, m] * ℓ.a[idx.f, idx.a, m]
-    r = grid.r[idx.r]
-    f = grid.f[idx.f]
-    a = grid.a[idx.a]
-    vr, va = randspeed(models[m])
-    x, y, = ra2xy(r, a)
-    vx, vy = ra2xy(vr, va)
-    return value, State(m, f, x, y, vx, vy)
-end
-
-function birth!(weights, cloud, ℓ, F, models, grid)
-    @unpack Nr, Na, Nf, Nm = grid
-
-    ms = argsample(F.m, length(cloud), scale = F.Σm)
-    N = counts(ms, Nm)
-
-    idxs = []
-    @views for m = 1:Nm
-        ridx = argsample(F.r[:, m], N[m], scale = last(F.r[:, m]))
-        aidx = argsample(F.a[:, m], N[m], scale = last(F.a[:, m]))
-        aidx = Tuple.(CartesianIndices((Nf, Na))[aidx])
-        idx = [(r = ri, f = fi, a = ai) for (ri, (fi, ai)) in zip(ridx, aidx)]
-        push!(idxs, idx)
-    end
-
-
-    for (i, particle) in enumerate(cloud)
-        m = ms[i]
-        if !iszero(m)
-            idx = pop!(idxs[m])
-            value, state = birth(m, idx, ℓ, models, grid)
-        else
-            value, state = 1.0, State()
-        end
-        weights[i] *= F.Σm / value
-        push!(particle, state)
-    end
-end
-
 
 function logf(state, prevstate, models, grid)
     @unpack T = grid

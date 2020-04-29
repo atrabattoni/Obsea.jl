@@ -34,30 +34,18 @@ end
 function likelihood(zr, za, tdoalut, models, grid)
     ℓr = likelihood(zr, tdoalut, models, grid)
     ℓa = likelihood(za, models, grid)
-    ℓ = (r = ℓr, a = ℓa)
+    ℓm, ℓΣm = marginalize(ℓr, ℓa, models, grid)
+    ℓ = (r = ℓr, a = ℓa, m = ℓm, Σm = ℓΣm)
 end
 
-
-function distribution(ℓ, models, grid)
+function marginalize(ℓr, ℓa, models, grid)
     @unpack Nr, Nf, Na, Nm = grid
-    # model
     pb = [model.pb for model in models]
     ℓm = similar(pb)
     @inbounds for m = 1:Nm
-        @views ℓm[m] = pb[m] * sum(ℓ.r[:, m]) / Nr * sum(ℓ.a[:, :, m]) / Na / Nf
+        @views ℓm[m] = pb[m] * sum(ℓr[:, m]) / Nr * sum(ℓa[:, :, m]) / Na / Nf
     end
-    Fm = cumsum(ℓm)
     ℓ0 = 1.0 - sum(pb)
-    FΣm = ℓ0 + last(Fm)
-    # range
-    Fr = similar(ℓ.r)
-    @inbounds for m = 1:Nm
-        @views Fr[:, m] = cumsum(ℓ.r[:, m])
-    end
-    # azimuth
-    Fa = Array{Float64,2}(undef, Nf * Na, Nm)
-    @inbounds for m = 1:Nm
-        @views Fa[:, m] = cumsum(vec(ℓ.a[:, :, m]))
-    end
-    F = (r = Fr, a = Fa, m = Fm, Σm = FΣm)
+    ℓΣm = ℓ0 + sum(ℓm)
+    ℓm, ℓΣm
 end

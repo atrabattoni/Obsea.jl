@@ -1,4 +1,4 @@
-import Obsea: likelihood, distribution
+import Obsea: likelihood
 
 @testset "likelihood" begin
 
