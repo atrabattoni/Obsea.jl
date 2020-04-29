@@ -1,5 +1,5 @@
 function predict!(weights, cloud, ℓ, models, grid)
-    mask = isempty(cloud)
+    mask = [isempty(last(particle)) for particle in cloud]
     birth!(view(weights, mask), view(cloud, mask), ℓ, models, grid)
     move!(view(cloud, .!mask), models, grid)
 end
@@ -19,10 +19,12 @@ function ℓ2idxs(ℓ, N, grid)
     idxs = Array{NamedTuple{(:r, :f, :a, :m),NTuple{4,Int}}}(undef, N)
     j = 1
     for m = 1:Nm
-        @views ridxs = argsample(ℓ.r[:, m], Nc[m])
-        @views faidxs = argsample(vec(ℓ.a[:, :, m]), Nc[m])
-        faidxs = Tuple.(CartesianIndices((Nf, Na))[faidxs])
-        for (r, (f, a)) in zip(ridxs, faidxs)
+        @views ridxs = argsample(grid.r .* ℓ.r[:, m], Nc[m])
+        @views aidxs = argsample(vec(ℓ.a[:, :, m]), Nc[m])
+        aidxs = Tuple.(CartesianIndices((Nf, Na))[aidxs])
+        shuffle!(ridxs)
+        shuffle!(aidxs)
+        for (r, (f, a)) in zip(ridxs, aidxs)
             idxs[j] = (r = r, f = f, a = a, m = m)
             j += 1
         end
@@ -95,23 +97,23 @@ function move(state, models, grid)
     end
 end
 
-function logf(state, prevstate, models, grid)
-    @unpack T = grid
-    if isempty(state)
-        if isempty(prevstate)
-            return log(1.0 - pb)
-        else
-            return log(1.0 - ps)
-        end
-    else
-        if isempty(prevstate)
-            return log(pb)
-        else
-            @assert getmodel(state) == getmodel(prevstate)
-            @unpack q, pb, ps = models[getmodel(state)]
-            dvx = state.vx - prevstate.vx
-            dvy = state.vy - prevstate.vy
-            return log(ps) - (dvx^2 + dvy^2) / (q * T)^2  # TODO
-        end
-    end
-end
+# function logf(state, prevstate, models, grid)
+#     @unpack T = grid
+#     if isempty(state)
+#         if isempty(prevstate)
+#             return log(1.0 - pb)
+#         else
+#             return log(1.0 - ps)
+#         end
+#     else
+#         if isempty(prevstate)
+#             return log(pb)
+#         else
+#             @assert getmodel(state) == getmodel(prevstate)
+#             @unpack q, pb, ps = models[getmodel(state)]
+#             dvx = state.vx - prevstate.vx
+#             dvy = state.vy - prevstate.vy
+#             return log(ps) - (dvx^2 + dvy^2) / (q * T)^2  # TODO
+#         end
+#     end
+# end
