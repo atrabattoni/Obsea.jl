@@ -124,5 +124,5 @@ function ra2xy(r, a)
 end
 
 function xy2ra(x, y)
-    sqrt(x^2 + y^2), atan(x, y) % 2π
+    sqrt(x^2 + y^2), mod(atan(x, y), 2π)
 end
