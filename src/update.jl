@@ -1,31 +1,18 @@
 function update!(weights, cloud, ℓ, models, grid)
-    for (i, particle) in enumerate(cloud)
-        weights[i] *= interp(ℓ, last(particle), models, grid)
-    end
+    pd = [model.pd for model in models]
+    ℓr, ℓa = make(ℓ, grid)
+    r = sqrt.(cloud.x.^2 .+ cloud.y.^2)
+    a = mod.(atan.(cloud.x, cloud.y), 2π)
+    weights .*= (1.0 .- pd) .+ pd .* ℓr.(r, cloud.m) .* ℓa.(cloud.f, a, cloud.m)
     weights ./= sum(weights)
 end
 
-
-function interp(ℓ, state, models, grid)
-    if isempty(state)
-        return 1.0
-    else
-        @unpack m, f, x, y = state
-        @unpack pd = models[m]
-        @unpack Nm = grid
-        r, a = xy2ra(x, y)
-
-        ℓr = interpolate!(ℓ.r, (BSpline(Linear()), NoInterp()))
-        ℓr = extrapolate(ℓr, 1.0)
-        ℓr = scale(ℓr, grid2range(grid.r), 1:Nm)
-
-        ℓa = interpolate!(
-            ℓ.a,
-            (BSpline(Linear()), BSpline(Linear()), NoInterp()),
-        )
-        ℓa = extrapolate(ℓa, 1.0)
-        ℓa = scale(ℓa, grid2range(grid.f), grid2range(grid.a), 1:Nm)
-
-        return (1.0 - pd) + pd * ℓr(r, m) * ℓa(f, a, m)
-    end
+function make(ℓ, grid)
+    ℓr = interpolate!(ℓ.r, (BSpline(Linear()), NoInterp()))
+    ℓa = interpolate!(ℓ.a, (BSpline(Linear()), BSpline(Linear()), NoInterp()))
+    ℓr = extrapolate(ℓr, 1.0)
+    ℓa = extrapolate(ℓa, 1.0)
+    ℓr = scale(ℓr, grid2range(grid.r), 1:grid.Nm)
+    ℓa = scale(ℓa, grid2range(grid.f), grid2range(grid.a), 1:grid.Nm)
+    ℓr, ℓa
 end

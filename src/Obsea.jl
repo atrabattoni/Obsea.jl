@@ -1,8 +1,12 @@
 module Obsea
 
-using DSP, Interpolations, LoopVectorization, Parameters, SpecialFunctions
-using Random
-import Pkg.TOML
+using DSP,
+    Interpolations,
+    LoopVectorization,
+    Parameters,
+    SpecialFunctions,
+    StructArrays
+import Pkg.TOML, Random.shuffle!
 
 include("utils.jl")
 include("parameters.jl")

@@ -11,7 +11,6 @@
     n::Int
 end
 
-
 struct Propagation
     Nmode::Int
     depth::Float64
@@ -25,7 +24,6 @@ struct Propagation
         new(Nmode, depth, celerity, ic, ib, sigma)
     end
 end
-
 
 struct Grid
     r::Vector{Float64}
@@ -53,14 +51,12 @@ struct Grid
     end
 end
 
-
 function parameters(dict::Dict, fs, nfft)
     models = [Model(; symbolize(d)...) for d in dict["model"]]
     propa = Propagation(; symbolize(dict["propagation"])...)
     grid = Grid(length(models), fs, nfft; symbolize(dict["grid"])...)
     return (models, propa, grid)
 end
-
 function parameters(fname::String, fs, nfft)
     dict = TOML.parsefile(fname)
     return parameters(dict::Dict, fs, nfft)

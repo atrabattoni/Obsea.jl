@@ -1,36 +1,32 @@
-function track(ceps, az, params, fs, N)
+function track(ceps, az, params, fs, Nfft, Np)
 
     # Parameters
     @assert size(ceps, 2) == size(az, 2)
-    @assert isodd(size(ceps, 1))
-    Nfft = (size(ceps, 1) - 1) * 2
     Nt = size(ceps, 2)
     models, propa, grid = parameters(params, fs, Nfft)
     tdoalut = TDOALUT(propa, grid)
 
     # Precompute
-
-    ℓs = []
-    for k = 1:Nt
-        print(k, "/", Nt, "\r")
-        ℓ = likelihood(ceps[:, k], az[:, k], tdoalut, models, grid)
-        push!(ℓs, ℓ)
-    end
-
-    # Initialize
-    weights, cloud = init(N)
+    @views ℓs =
+        [likelihood(ceps[:, k], az[:, k], tdoalut, models, grid) for k = 1:Nt]
 
     # Track
+    weights, particles = init(Nt, Np)
     for k = 1:Nt
-        predict!(weights, cloud, ℓs[k], models, grid)
-        update!(weights, cloud, ℓs[k], models, grid)
-        weights, cloud = resample(weights, cloud)
+        cloud, prevcloud, ℓ = fetch(k, particles, ℓs)
+        predict!(weights, cloud, prevcloud, ℓ, models, grid)
+        update!(weights, cloud, ℓ, models, grid)
+        resample!(weights, particles)
     end
 
-    # Finalize
-    final!(cloud)
-
     # Output
-    @unpack Nm = grid
-    estimate(cloud, Nm, Nt)
+    return estimate(particles)
+end
+
+function fetch(k, particles, ℓs)
+    kprev = (k == 1 ? 1 : k - 1)
+    ℓ = ℓs[k]
+    @views cloud = particles[k, :]
+    @views prevcloud = particles[kprev, :]
+    return cloud, prevcloud, ℓ
 end

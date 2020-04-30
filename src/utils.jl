@@ -126,3 +126,12 @@ end
 function xy2ra(x, y)
     sqrt(x^2 + y^2), mod(atan(x, y), 2π)
 end
+
+
+function counts(x, N)
+    d = Dict(i => 0 for i = 0:N)
+    for xi in x
+        d[xi] += 1
+    end
+    d
+end
