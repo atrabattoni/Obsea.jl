@@ -7,8 +7,8 @@ struct State
     vy::Float64
 end
 State() = State(0, 0.0, 0.0, 0.0, 0.0, 0.0)
-getmodel(state::State) = state.m
-isempty(state::State) = iszero(getmodel(state))
+getmodel(state) = state.m
+isdead(state) = iszero(getmodel(state))
 
 function init(Nt, Np)
     weights = fill(1 / Np, Np)
@@ -18,8 +18,8 @@ function init(Nt, Np)
 end
 
 function estimate(particles)
-    n = sum(.!iszero.(particles.m))
-    x = sum(particles.x, dims = 2) / n
-    y = sum(particles.y, dims = 2) / n
+    n = sum(particles.m .!= 0, dims = 2)
+    x = sum(particles.x, dims = 2) ./ n
+    y = sum(particles.y, dims = 2) ./ n
     return vec(x), vec(y)
 end

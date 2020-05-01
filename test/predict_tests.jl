@@ -1,19 +1,18 @@
 import Obsea:
     predict!,
+    Index,
     birth!,
     ℓ2idxs,
-    counts,
+    idx2norm,
     idx2state,
     randspeed,
-    idx2norm,
     move!,
-    move,
-    logf
+    kinematic!,
+    survive
 
 @testset "predict.jl" begin
-
     models, propa, grid = parameters("parameters.toml", 50.0, 1024)
-    @unpack T = grid
+    @unpack T, Nr, Nf, Na, Nm = grid
     state = State(1, 2.0, 3.0, 4.0, 5.0, 6.0)
     movedstate = State(1, 2.0, 3.0 + 5.0 * T, 4.0 + 6.0 * T, 5.0, 6.0)
     ∅ = State()
@@ -21,7 +20,7 @@ import Obsea:
         name = "life",
         q = 0.0,
         vmin = 0.0,
-        vmax = 1.0,
+        vmax = 0.0,
         ps = 1.0,
         pb = 1.0,
         pd = NaN,
@@ -33,7 +32,7 @@ import Obsea:
         name = "death",
         q = 0.0,
         vmin = 0.0,
-        vmax = 1.0,
+        vmax = 0.0,
         ps = 0.0,
         pb = 0.0,
         pd = NaN,
@@ -41,27 +40,22 @@ import Obsea:
         mrl = NaN,
         n = 1,
     )
-    half = Model(
-        name = "death",
-        q = 0.0,
-        vmin = 0.0,
-        vmax = 1.0,
-        ps = 0.5,
-        pb = 0.5,
-        pd = NaN,
-        lam = NaN,
-        mrl = NaN,
-        n = 1,
-    )
-    Nr, Nf, Na, Nm = (grid.Nr, grid.Nf, grid.Na, length(1:grid.Nm))
+    lifedeath = StructVector([life, death])
+    deathlife = StructVector([death, life])
+    deathdeath = StructVector([death, death])
 
     @testset "move" begin
-        @test move(state, [life, death], grid) == movedstate
-        @test isempty(move(state, [death, death], grid))
+        prevcloud = StructVector([state])
+        cloud = StructVector([State()])
+        move!(cloud, prevcloud, lifedeath, grid)
+        @test cloud == StructVector([movedstate])
+        cloud = StructVector([State()])
+        move!(cloud, prevcloud, deathdeath, grid)
+        @test cloud.m == [0]
     end
 
-    @testset "distribution, ℓ2idxs, idx2state, idx2norm" begin
-        idx = (r = 57, f = 33, a = 101, m = 2)
+    @testset "birth!, ℓ2idxs, idx2state, idx2norm" begin
+        idx = Index(57, 33, 101, 2)
         value = 10.0
         N = 3
         ℓ = (
@@ -84,28 +78,50 @@ import Obsea:
         @test length(idxs) == N
         @test idxs == fill(idx, N)
         # idx2state
-        s = idx2state(idxs[1], [death, life], grid)
+        s = idx2state(idxs[1], deathlife, grid)
         @test s.m == m
         @test s.f == f
         @test s.x == x
         @test s.y == y
+        @test s.vx == 0.0
+        @test s.vy == 0.0
+
         # idx2norm
         norm = idx2norm(idxs[1], ℓ)
         @test norm == ℓ.Σm / ℓ.r[idx.r, idx.m] / ℓ.a[idx.f, idx.a, idx.m]
+        # birth
+        weights = [1.0]
+        cloud = StructVector([State()])
+        birth!(weights, cloud, ℓ, deathlife, grid)
+        @test weights == [ℓ.Σm / ℓ.r[idx.r, idx.m] / ℓ.a[idx.f, idx.a, idx.m]]
+        s = cloud[1]
+        @test s.m == m
+        @test s.f == f
+        @test s.x == x
+        @test s.y == y
+        @test s.vx == 0.0
+        @test s.vy == 0.0
     end
 
-    @testset "predict" begin
-        ℓ = (r = ones(Nr, Nm), a = ones(Nf, Na, Nm), m = ones(Nm), Σm = Nm)
-        particle = [state]
-        cloud = [particle]
+    @testset "isdead, survive, predict" begin
+        ℓ = Likelihood(ones(Nr, Nm), ones(Nf, Na, Nm), ones(Nm), Nm)
+        prevcloud = StructVector([state])
+        cloud = StructVector([State()])
         weights = [1.0]
-        predict!(weights, cloud, ℓ, [life, death], grid)
-        @test length(particle) === 2
-        @test particle[2] == movedstate
 
-        predict!(weights, cloud, ℓ, [death, death], grid)
-        @test length(particle) === 3
-        @test isempty(particle[3])
+        @test isdead.(prevcloud) == [false]
+        @test survive(prevcloud, [1.0]) == [true]
+        move!(cloud, prevcloud, lifedeath, grid)
+        @test cloud[1] == movedstate
+        predict!(weights, cloud, prevcloud, ℓ, lifedeath, grid)
+        @test cloud[1] == movedstate
+
+        prevcloud = cloud
+        cloud = StructVector([State()])
+        @test isdead.(prevcloud) == [false]
+        @test survive(prevcloud, [0.0]) == [false]
+        predict!(weights, cloud, prevcloud, ℓ, deathdeath, grid)
+        @test isdead.(cloud) == [true]
     end
 
 end

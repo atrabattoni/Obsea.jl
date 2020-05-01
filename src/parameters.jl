@@ -52,7 +52,7 @@ struct Grid
 end
 
 function parameters(dict::Dict, fs, nfft)
-    models = [Model(; symbolize(d)...) for d in dict["model"]]
+    models = StructVector([Model(; symbolize(d)...) for d in dict["model"]])
     propa = Propagation(; symbolize(dict["propagation"])...)
     grid = Grid(length(models), fs, nfft; symbolize(dict["grid"])...)
     return (models, propa, grid)

@@ -1,9 +1,14 @@
 function update!(weights, cloud, ℓ, models, grid)
-    pd = [model.pd for model in models]
+    @unpack pd = models
     ℓr, ℓa = make(ℓ, grid)
-    r = sqrt.(cloud.x.^2 .+ cloud.y.^2)
+    mask = .!isdead.(cloud)
+    @views weights = weights[mask]
+    @views cloud = cloud[mask]
+    r = sqrt.(cloud.x .^ 2 .+ cloud.y .^ 2)
+    f = cloud.f
     a = mod.(atan.(cloud.x, cloud.y), 2π)
-    weights .*= (1.0 .- pd) .+ pd .* ℓr.(r, cloud.m) .* ℓa.(cloud.f, a, cloud.m)
+    m = cloud.m
+    weights .*= (1.0 .- pd[m]) .+ pd[m] .* ℓr.(r, m) .* ℓa.(f, a, m)
     weights ./= sum(weights)
 end
 

@@ -28,6 +28,6 @@ import Obsea: tlim, toa, tdoa, TDOALUT
 
     @testset "TDOALUT" begin
         tdoalut = TDOALUT(propa, grid)
-    end
+        @test all(isnan.(tdoalut.τ[1, :])) end
 
 end

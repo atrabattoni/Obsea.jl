@@ -1,8 +1,8 @@
 function resample!(weights, particles)
-    idx = argsample(weights, length(weights); scale = 1.0)
+    idx = argsample(weights, length(weights))
     Np = length(weights)
-    keep = Vector{Bool}(undef, Np)
-    stack = Vector{Int}(undef, 0)
+    keep = zeros(Bool, Np)
+    stack = Int[]
     for j in idx
         if !keep[j]
             keep[j] = true

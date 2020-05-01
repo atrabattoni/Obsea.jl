@@ -9,7 +9,6 @@ function window(sigma)
     end
 end
 
-
 function limit(grid, min, max)
     @assert first(grid) <= min <= max <= last(grid)
     i = 1
@@ -31,24 +30,20 @@ function limit(grid, min, max)
     grid[i:j]
 end
 
-
 function grid2range(grid)
     range(first(grid), last(grid), length = length(grid))
 end
-
 
 function symbolize(d)
     Dict(Symbol(k) => v for (k, v) in d)
 end
 
-
-function convsame(u, v)
+function convsame!(out, u, v)
     Nu = length(u)
     Nv = length(v)
     @assert Nu > Nv
     @assert isodd(Nv)
     Nc = (Nv ÷ 2) + 1
-    out = similar(u)
     @inbounds for j = 1:Nc-1
         s = 0.0
         for i = Nc-(j-1):Nv
@@ -72,30 +67,36 @@ function convsame(u, v)
     end
     return out
 end
+convsame(u, v) = convsame!(similar(u), u, v)
 
-
-function wrapcauchy(z, a, mrl)
-    @assert 0 < mrl < 1.0
-    (1.0 - mrl^2) / (1.0 - 2.0 * mrl * cos(z - a) + mrl^2)
-end
-
-
-function rollprod(u, Nv)
+function rollprod!(out, u, Nv)
     Nu = length(u)
     @assert isodd(Nv)
     Np = Nv ÷ 2
-    out = similar(u)
-    for j = 1:Np
-        out[j] = prod(u[1:j+Np])
+    @inbounds for j = 1:Np
+        p = 1.0
+        for i = 1:j+Np
+            p *= u[i]
+        end
+        out[j] = p
     end
-    for j = Np+1:Nu-Np-1
-        out[j] = prod(u[j-Np:j+Np])
+    @avx for j = Np+1:Nu-Np-1
+        p = 1.0
+        for i = -Np:Np
+            p *= u[j+i]
+        end
+        out[j] = p
     end
-    for j = Nu-Np:Nu
-        out[j] = prod(u[j-Np:Nu])
+    @inbounds for j = Nu-Np:Nu
+        p = 1.0
+        for i = j-Np:Nu
+            p *= u[i]
+        end
+        out[j] = p
     end
-    out
+    return out
 end
+rollprod(u, Nv) = rollprod!(similar(u), u, Nv)
 
 function argsample(ℓ, N; scale = sum(ℓ))
     step = scale / N
@@ -127,9 +128,8 @@ function xy2ra(x, y)
     sqrt(x^2 + y^2), mod(atan(x, y), 2π)
 end
 
-
-function counts(x, N)
-    d = Dict(i => 0 for i = 0:N)
+function counts(x, Np)
+    d = Dict(i => 0 for i = 0:Np)
     for xi in x
         d[xi] += 1
     end

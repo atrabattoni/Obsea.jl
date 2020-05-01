@@ -46,7 +46,6 @@ idx = StructVector{Index}((
 @btime for i = 1:Np idx2norm(idx[i], ℓ) end
 
 
-
 function birth!(mask, weights, cloud, ℓ, models, grid)
     idxs = ℓ2idxs(ℓ, count(mask), grid)
     weights[mask] .*= idx2norm.(idxs, ℓ)
@@ -74,14 +73,6 @@ function ℓ2idxs(ℓ, Np, grid)
         j += 1
     end
     shuffle!(idxs)
-end
-
-function counts(x, Np)
-    d = Dict(i => 0 for i = 0:Np)
-    for xi in x
-        d[xi] += 1
-    end
-    d
 end
 
 function idx2norm(idx, ℓ)

@@ -1,17 +1,18 @@
-import Obsea: resample
+import Obsea: resample!
 
-@testset "resample" begin
-
-    @testset "resample" begin
-        particle_1 = [State(1, 0, 0, 0, 0, 0)]
-        particle_2 = [State(2, 0, 0, 0, 0, 0)]
-        weights = [0.0, 1.0]
-        cloud = [particle_1, particle_2]
-        weights, cloud = resample(weights, cloud)
-        @test cloud[1] == particle_2
-        @test cloud[2] == particle_2
-        @test weights[1] == 0.5
-        @test weights[2] == 0.5
-    end
+@testset "resample!" begin
+    s0 = State(0, 0, 0, 0, 0, 0)
+    s1 = State(1, 0, 0, 0, 0, 0)
+    s2 = State(2, 0, 0, 0, 0, 0)
+    weights = [2 / 3, 1 / 3, 0.0]
+    particles = StructArray([
+        s1 s1 s2
+        s0 s2 s0
+    ])
+    resample!(weights, particles)
+    @test particles[:, 1] == StructVector([s1, s0])
+    @test particles[:, 2] == StructVector([s1, s2])
+    @test particles[:, 3] == StructVector([s1, s0])
+    @test weights == ones(3) ./ 3
 
 end

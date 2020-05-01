@@ -2,7 +2,7 @@ using Obsea
 using Test
 
 using Parameters
-using Pkg.TOML
+using StructArrays
 
 @testset "Obsea.jl" begin
     include("utils_tests.jl")

@@ -1,10 +1,9 @@
 function predict!(weights, cloud, prevcloud, ℓ, models, grid)
-    mask = isempty.(cloud)
+    mask = isdead.(prevcloud)
     @views birth!(weights[mask], cloud[mask], ℓ, models, grid)
     @views move!(cloud[.!mask], prevcloud[.!mask], models, grid)
     return cloud
 end
-
 
 ## Birth
 
@@ -72,39 +71,34 @@ function randspeed(model)
     @unpack vmin, vmax = model
     vr = vmin + (vmax - vmin) * rand()
     va = 2π * rand()
-    va, vr
+    vr, va
 end
 
 
 ## Move
 
 function move!(cloud, prevcloud, models, grid)
-    Ps = [model.ps for model in models]
-    Q = [model.q for model in models]
+    @unpack ps, q = models
     T = grid.T
-    kinematic!(cloud, prevcloud, T, Q)
-    kill!(cloud, Ps)
+    mask = survive(prevcloud, ps)
+    @views kinematic!(cloud[mask], prevcloud[mask], T, q)
     return cloud
 end
 
-function kinematic!(cloud, prevcloud, T, Q)
-    dims = size(prevcloud)
-    q = Q[prevcloud.m]
-    ax = q .* randn(dims...)
-    ay = q .* randn(dims...)
+function kinematic!(cloud, prevcloud, T, q)
+    ax = q[prevcloud.m] .* randn(size(prevcloud.m)...)
+    ay = q[prevcloud.m] .* randn(size(prevcloud.m)...)
+    cloud.m .= prevcloud.m
+    cloud.f .= prevcloud.f
     cloud.x .= prevcloud.x .+ prevcloud.vx .* T .+ ax .* (T^2 / 2.0)
-    cloud.y .= prevcloud.x .+ prevcloud.vy .* T .+ ay .* (T^2 / 2.0)
+    cloud.y .= prevcloud.y .+ prevcloud.vy .* T .+ ay .* (T^2 / 2.0)
     cloud.vx .= prevcloud.vx .+ ax .* T
     cloud.vy .= prevcloud.vy .+ ay .* T
     return cloud
 end
 
-function kill!(prevcloud, Ps)
-    dims = size(prevcloud)
-    ps = Ps[prevcloud.m]
-    mask = rand(dims...) .>= ps
-    @views fill!(prevcloud[mask], State())
-    return prevcloud
+function survive(cloud, ps)
+    return rand(size(cloud.m)...) .< ps[cloud.m]
 end
 
 
@@ -112,14 +106,14 @@ end
 
 # function logf(state, prevstate, models, grid)
 #     @unpack T = grid
-#     if isempty(state)
-#         if isempty(prevstate)
+#     if isdead(state)
+#         if isdead(prevstate)
 #             return log(1.0 - pb)
 #         else
 #             return log(1.0 - ps)
 #         end
 #     else
-#         if isempty(prevstate)
+#         if isdead(prevstate)
 #             return log(pb)
 #         else
 #             @assert getmodel(state) == getmodel(prevstate)

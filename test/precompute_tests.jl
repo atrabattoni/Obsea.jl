@@ -1,12 +1,12 @@
-import Obsea: likelihood
+import Obsea: Likelihood, likelihood, marginalize
 
-@testset "likelihood" begin
+@testset "likelihood, marginalize" begin
 
-      dict = TOML.parsefile("parameters.toml")
-      models, propa, grid = parameters(dict, 50.0, 1024)
+      models, propa, grid = parameters("parameters.toml", 50.0, 1024)
       tdoalut = TDOALUT(propa, grid)
-      zr = zeros(grid.Nτ)
-      lams = [models[i].lam for i = 1:grid.Nm]
+      Nt = 10
+      zr = zeros(grid.Nτ, Nt)
+      lams = models.lam
       @assert all(x -> x == lams[1], lams)
       lam = first(lams)
       Nmode = propa.Nmode
@@ -21,8 +21,8 @@ import Obsea: likelihood
             sigma = sigma,
       )
       tdoalut = TDOALUT(propa, grid)
-      ℓ = likelihood(zr, tdoalut, models, grid)
-      @test ℓ ≈ fill(exp(-lam / 2)^Nmode, grid.Nr, grid.Nm)
+      ℓr = likelihood(zr, tdoalut, models, grid)
+      @test ℓr ≈ fill(exp(-lam / 2)^Nmode, grid.Nr, Nt, grid.Nm)
 
       @unpack Nmode, depth, celerity, ic, ib, sigma = propa
       propa = Propagation(
@@ -35,12 +35,12 @@ import Obsea: likelihood
       )
       tdoalut = TDOALUT(propa, grid)
       ℓ = likelihood(zr, tdoalut, models, grid)
-      @test ℓ ≈ fill(1.0, grid.Nr, length(1:grid.Nm))
+      @test ℓ ≈ fill(1.0, grid.Nr, Nt, length(1:grid.Nm))
 
-      za = zeros(grid.Nf)
-      ℓ = likelihood(za, models, grid)
-      @test length(ℓ) == grid.Nf * grid.Na * length(1:grid.Nm)
+      za = zeros(grid.Nf, Nt)
+      ℓa = likelihood(za, models, grid)
+      @test length(ℓa) == grid.Nf * grid.Na * Nt *length(1:grid.Nm)
 
-      @test_nowarn likelihood(zr, za, tdoalut, models, grid)
+      ℓm, ℓΣm = marginalize(ℓr, ℓa, models, grid)
 
 end
