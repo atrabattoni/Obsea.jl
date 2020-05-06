@@ -30,10 +30,8 @@ function likelihood(za, models, grid)
     @unpack Na, Nm = grid
     @unpack mrl, n = models
     # wrapped cauchy distribution
-    za = reshape(za, (Nf, 1, Nt, 1))
-    a = reshape(grid.a, (1, Na, 1, 1))
-    mrl = reshape(mrl, (1, 1, 1, Nm))
-    ℓa = (1.0 .- mrl .^ 2) ./ (1.0 .- 2.0 .* mrl .* cos.(za .- a) .+ mrl .^ 2)
+    ℓa = Array{Float64}(undef, Nf, Na, Nt, Nm)
+    wrapcauchy!(ℓa, za, grid.a, mrl)
     # frequency stability
     out = Array{Float64}(undef, Nf)
     for m = 1:Nm
@@ -47,14 +45,26 @@ function likelihood(za, models, grid)
     return ℓa
 end
 
+function wrapcauchy!(out, za, a, mrl)
+    Nf, Nt = size(za)
+    Na = length(a)
+    Nm = length(mrl)
+    @avx for t = 1:Nt, j = 1:Na, i = 1:Nf, m = 1:Nm
+        out[i, j, t, m] =
+            (1.0 - mrl[m]^2) /
+            (1.0 - 2.0 * mrl[m] * cos(za[i, t] - a[j]) + mrl[m]^2)
+    end
+    return out
+end
+
 function marginalize(ℓr, ℓa, models, grid)
     # parameters
     @unpack Nr, Nf, Na, Nm = grid
     @unpack pb = models
     # marginalize
-    pb = reshape(pb, (1, Nm))
     ℓm =
-        pb .* dropdims(sum(grid.r .* ℓr, dims = 1), dims = 1) ./ sum(grid.r) .*
+        reshape(pb, (1, Nm)) .*
+        dropdims(sum(grid.r .* ℓr, dims = 1), dims = 1) ./ sum(grid.r) .*
         dropdims(sum(ℓa, dims = (1, 2)), dims = (1, 2)) ./ Na ./ Nf
     ℓ0 = 1.0 - sum(pb)
     ℓΣm = ℓ0 .+ dropdims(sum(ℓm, dims = 2), dims = 2)

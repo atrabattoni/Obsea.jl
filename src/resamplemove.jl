@@ -12,7 +12,8 @@ function resample!(weights, particles)
     end
     for j = 1:Np
         if !keep[j]
-            @views particles[:, j] .= particles[:, pop!(stack)]
+            k = pop!(stack)
+            @views particles[:, j] .= particles[:, k]
         end
     end
     fill!(weights, 1 / Np)
