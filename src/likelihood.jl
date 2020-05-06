@@ -1,3 +1,11 @@
+"""
+    likelihood(z, [tdoalut,] models, grid)
+
+Compute the likelihood ratio on each point of grid for each models.
+
+If tdoalut is given, the measurement z is supposed to be a ceptsrogram, and an
+azigram otherwise.
+"""
 function likelihood(zr, tdoalut, models, grid)
     # parameters
     Nτ, Nt = size(zr)
@@ -45,6 +53,14 @@ function likelihood(za, models, grid)
     return ℓa
 end
 
+"""
+    wrapcauchy!(out, za, a, mrl)
+
+Compute the wrapcauchy probability divided by the uniform one.
+
+Computation are done for each combination of measured angles za, hypothetic
+angles a, and give mean running length mrl.
+"""
 function wrapcauchy!(out, za, a, mrl)
     Nf, Nt = size(za)
     Na = length(a)
@@ -57,6 +73,11 @@ function wrapcauchy!(out, za, a, mrl)
     return out
 end
 
+"""
+    marginalize(ℓr, ℓa, models, grid)
+
+Marginalize the likelihood to get the probability of each model.
+"""
 function marginalize(ℓr, ℓa, models, grid)
     # parameters
     @unpack Nr, Nf, Na, Nm = grid
@@ -71,6 +92,11 @@ function marginalize(ℓr, ℓa, models, grid)
     return ℓm, ℓΣm
 end
 
+"""
+    Likelihood(ℓr, ℓa, ℓm, ℓΣm)
+
+Store all likelihood computations at a given time.
+"""
 struct Likelihood
     r::Array{Float64,2}
     a::Array{Float64,3}
