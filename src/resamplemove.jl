@@ -22,4 +22,21 @@ end
 
 function mcmc!(particle, prevparticle, ℓ, models, grid)
     particle .= prevparticle
+    if alivelength(prevparticle) == 1
+        @unpack m, f, x, y = last(particle)
+        vr, va = randspeed(models[m])
+        vx, vy = ra2xy(vr, va)
+        particle[end] = State(m, f, x, y, vx, vy)
+    end
+    return particle
+end
+
+function alivelength(particle)
+    Np = length(particle)
+    for i = 0:Np-1
+        if isdead(particle[Np-i])
+            return i
+        end
+    end
+    return Np
 end
