@@ -25,6 +25,7 @@ f = npzread("f_test.npy")
 Nt = size(zr, 2)
 
 models, propa, grid = parameters("params_test.toml", fs, Nfft)
+@code_warntype parameters("params_test.toml", fs, Nfft)
 tdoalut = TDOALUT(propa, grid)
 
 ## Precompute likelihood
