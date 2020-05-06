@@ -5,7 +5,7 @@ import Obsea:
     likelihood,
     marginalize,
     init,
-    fetch,
+    slice,
     predict!,
     update!,
     resample!,

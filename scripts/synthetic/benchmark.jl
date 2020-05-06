@@ -5,7 +5,7 @@ import Obsea:
     likelihood,
     marginalize,
     init,
-    fetch,
+    slice,
     predict!,
     update!,
     resample!,
@@ -43,7 +43,7 @@ function loop(weights, particles, ℓr, ℓa, ℓm, ℓΣm, models, grid, Np)
     Nt = size(ℓr, 2)
 
     for t = 1:Nt
-        cloud, prevcloud, ℓ = fetch(t, particles, ℓr, ℓa, ℓm, ℓΣm)
+        cloud, prevcloud, ℓ = slice(t, particles, ℓr, ℓa, ℓm, ℓΣm)
         predict!(weights, cloud, prevcloud, ℓ, models, grid)
         update!(weights, cloud, ℓ, models, grid)
         if (1.0 / sum(weights .^ 2)) < (Np / 2.0)
