@@ -11,11 +11,11 @@ import Pkg.TOML, Random.shuffle!
 include("utils.jl")
 include("parameters.jl")
 include("propagation.jl")
-include("precompute.jl")
+include("likelihood.jl")
 include("particle.jl")
 include("predict.jl")
 include("update.jl")
 include("resamplemove.jl")
-include("tracker.jl")
+include("track.jl")
 
 end # module
