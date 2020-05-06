@@ -1,12 +1,11 @@
-function track(zr, za, params, fs, Nfft, Np)
+function track(zr, za, models, propa, grid, Np)
 
     # Parameters
     @assert size(zr, 2) == size(za, 2)
     Nt = size(zr, 2)
-    models, propa, grid = parameters(params, fs, Nfft)
-    tdoalut = TDOALUT(propa, grid)
 
     # Precompute
+    tdoalut = TDOALUT(propa, grid)
     ℓr = likelihood(zr, tdoalut, models, grid)
     ℓa = likelihood(za, models, grid)
     ℓm, ℓΣm = marginalize(ℓr, ℓa, models, grid)
