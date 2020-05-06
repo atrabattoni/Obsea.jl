@@ -1,4 +1,4 @@
-import Obsea: track, fetch
+import Obsea: track, slice
 
 @testset "track" begin
     models, propa, grid = parameters("parameters.toml", 50.0, 1024)

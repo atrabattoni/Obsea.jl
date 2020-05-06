@@ -13,7 +13,7 @@ function track(zr, za, models, propa, grid, Np)
     # Track
     weights, particles = init(Nt, Np)
     for t = 1:Nt
-        cloud, prevcloud, ℓ = fetch(t, particles, ℓr, ℓa, ℓm, ℓΣm)
+        cloud, prevcloud, ℓ = slice(t, particles, ℓr, ℓa, ℓm, ℓΣm)
         predict!(weights, cloud, prevcloud, ℓ, models, grid)
         update!(weights, cloud, ℓ, models, grid)
         resample!(weights, particles)
@@ -23,7 +23,7 @@ function track(zr, za, models, propa, grid, Np)
     return estimate(particles)
 end
 
-function fetch(t, particles, ℓr, ℓa, ℓm, ℓΣm)
+function slice(t, particles, ℓr, ℓa, ℓm, ℓΣm)
     kprev = (t == 1 ? 1 : t - 1)
     @views ℓ = Likelihood(ℓr[:, t, :], ℓa[:, :, t, :], ℓm[t, :], ℓΣm[t])
     @views cloud = particles[t, :]
