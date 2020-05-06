@@ -104,7 +104,7 @@ import Obsea:
     end
 
     @testset "isdead, survive, predict" begin
-        ℓ = Likelihood(ones(Nr, Nm), ones(Nf, Na, Nm), ones(Nm), Nm)
+        ℓ = LikelihoodSlice(ones(Nr, Nm), ones(Nf, Na, Nm), ones(Nm), Nm)
         prevcloud = StructVector([state])
         cloud = StructVector([State()])
         weights = [1.0]

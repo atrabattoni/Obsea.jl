@@ -9,23 +9,25 @@ function track(zr, za, models, propa, grid, Np)
     ℓr = likelihood(zr, tdoalut, models, grid)
     ℓa = likelihood(za, models, grid)
     ℓm, ℓΣm = marginalize(ℓr, ℓa, models, grid)
+    ℓ = Likelihood(ℓr, ℓa, ℓm, ℓΣm)
 
     # Track
     weights, particles = init(Nt, Np)
     for t = 1:Nt
-        cloud, prevcloud, ℓt = slice(t, particles, ℓr, ℓa, ℓm, ℓΣm)
+        cloud, prevcloud, ℓt = slice(t, particles, ℓ)
         predict!(weights, cloud, prevcloud, ℓt, models, grid)
         update!(weights, cloud, ℓt, models, grid)
-        resample!(weights, particles)
+        resample!(weights, particles, ℓ, models, grid)
     end
 
     # Output
     return estimate(particles)
 end
 
-function slice(t, particles, ℓr, ℓa, ℓm, ℓΣm)
+function slice(t, particles, ℓ)
     kprev = (t == 1 ? 1 : t - 1)
-    @views ℓt = Likelihood(ℓr[:, t, :], ℓa[:, :, t, :], ℓm[t, :], ℓΣm[t])
+    @views ℓt =
+        LikelihoodSlice(ℓ.r[:, t, :], ℓ.a[:, :, t, :], ℓ.m[t, :], ℓ.Σm[t])
     @views cloud = particles[t, :]
     @views prevcloud = particles[kprev, :]
     return cloud, prevcloud, ℓt

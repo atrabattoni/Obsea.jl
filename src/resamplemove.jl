@@ -1,4 +1,4 @@
-function resample!(weights, particles)
+function resample!(weights, particles, ℓ, models, grid)
     idx = argsample(weights, length(weights))
     Np = length(weights)
     keep = zeros(Bool, Np)
@@ -13,9 +13,13 @@ function resample!(weights, particles)
     for j = 1:Np
         if !keep[j]
             k = pop!(stack)
-            @views particles[:, j] .= particles[:, k]
+            @views mcmc!(particles[:, j], particles[:, k], ℓ, models, grid)
         end
     end
     fill!(weights, 1 / Np)
     return weights, particles
+end
+
+function mcmc!(particle, prevparticle, ℓ, models, grid)
+    particle .= prevparticle
 end

@@ -1,4 +1,4 @@
-import Obsea: Likelihood, likelihood, marginalize
+import Obsea: LikelihoodSlice, likelihood, marginalize
 
 @testset "likelihood, marginalize" begin
 

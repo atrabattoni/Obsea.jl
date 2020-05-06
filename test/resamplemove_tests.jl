@@ -9,7 +9,10 @@ import Obsea: resample!
         s1 s1 s2
         s0 s2 s0
     ])
-    resample!(weights, particles)
+    ℓ = nothing
+    models = nothing
+    grid = nothing
+    resample!(weights, particles, ℓ, models, grid)
     @test particles[:, 1] == StructVector([s1, s0])
     @test particles[:, 2] == StructVector([s1, s2])
     @test particles[:, 3] == StructVector([s1, s0])

@@ -95,9 +95,21 @@ end
 """
     Likelihood(ℓr, ℓa, ℓm, ℓΣm)
 
-Store all likelihood computations at a given time.
+Store all likelihood computations.
 """
 struct Likelihood
+    r::Array{Float64,3}
+    a::Array{Float64,4}
+    m::Array{Float64,2}
+    Σm::Vector{Float64}
+end
+
+"""
+    LikelihoodSlice(ℓtr, ℓta, ℓtm, ℓtΣm)
+
+Store all likelihood computations at a given time.
+"""
+struct LikelihoodSlice
     r::Array{Float64,2}
     a::Array{Float64,3}
     m::Vector{Float64}

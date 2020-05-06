@@ -9,7 +9,7 @@ import Obsea: make, update!
     ℓr = likelihood(zr, tdoalut, models, grid)
     ℓa = likelihood(za, models, grid)
     ℓm, ℓΣm = marginalize(ℓr, ℓa, models, grid)
-    @views ℓ = Likelihood(ℓr[:, 1, :], ℓa[:, :, 1, :], ℓm[1, :], ℓΣm[1])
+    @views ℓ = LikelihoodSlice(ℓr[:, 1, :], ℓa[:, :, 1, :], ℓm[1, :], ℓΣm[1])
     ∅ = State()
     ship1 = State(1, 5.0, 1000.0, 0.0, 5.0, 5.0)
     ship2 = State(1, 15.0, 1000.0, 1000.0, 5.0, 5.0)
