@@ -33,7 +33,7 @@ end
 
 function alivelength(particle)
     Np = length(particle)
-    for i = 0:Np-1
+    @inbounds for i = 0:Np-1
         if isdead(particle[Np-i])
             return i
         end

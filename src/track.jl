@@ -17,7 +17,7 @@ function track(zr, za, models, propa, grid, Np)
         cloud, prevcloud, ℓt = slice(t, particles, ℓ)
         predict!(weights, cloud, prevcloud, ℓt, models, grid)
         update!(weights, cloud, ℓt, models, grid)
-        resample!(weights, particles, ℓ, models, grid)
+        @views resample!(weights, particles[1:t, :], ℓ, models, grid)
     end
 
     # Output

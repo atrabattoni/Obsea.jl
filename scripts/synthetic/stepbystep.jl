@@ -22,21 +22,22 @@ tdoalut = TDOALUT(propa, grid)
 ℓr = likelihood(zr, tdoalut, models, grid)
 ℓa = likelihood(za, models, grid)
 ℓm, ℓΣm = marginalize(ℓr, ℓa, models, grid)
+ℓ = Obsea.Likelihood(ℓr, ℓa, ℓm, ℓΣm)
 
 ## Initialize
 weights, particles = init(Nt, Np)
 t = 30
 ## Iterate
 t += 1
-cloud, prevcloud, ℓ = slice(t, particles, ℓr, ℓa, ℓm, ℓΣm)
+cloud, prevcloud, ℓt = slice(t, particles, ℓ)
 plot()
 scatter!(particles[t-1, :], grid, label="prior")
 
-predict!(weights, cloud, prevcloud, ℓ, models, grid)
+predict!(weights, cloud, prevcloud, ℓt, models, grid)
 scatter!(particles[t, :], grid, label="predict")
 
-update!(weights, cloud, ℓ, models, grid)
+update!(weights, cloud, ℓt, models, grid)
 scatter!(particles[t, :], grid, label="update", zcolor=weights, colorbar=false)
 
-resample!(weights, particles)
+@views resample!(weights, particles[1:t, :], ℓ, models, grid)
 scatter!(particles[t, :], grid, label="resample")
