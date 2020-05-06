@@ -18,4 +18,16 @@ include("update.jl")
 include("resamplemove.jl")
 include("track.jl")
 
+export parameters,
+    TDOALUT,
+    likelihood,
+    marginalize,
+    init,
+    fetch,
+    predict!,
+    update!,
+    resample!,
+    estimate,
+    track
+
 end # module
