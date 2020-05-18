@@ -1,6 +1,6 @@
-function predict!(weights, cloud, prevcloud, ℓ, models, grid)
+function predict!(weights, cloud, prevcloud, ℓt, models, grid)
     mask = isdead.(prevcloud)
-    @views birth!(weights[mask], cloud[mask], ℓ, models, grid)
+    @views birth!(weights[mask], cloud[mask], ℓt, models, grid)
     @views move!(cloud[.!mask], prevcloud[.!mask], models, grid)
     return cloud
 end
@@ -15,21 +15,21 @@ struct Index
 end
 Index() = Index(0, 0, 0, 0)
 
-function birth!(weights, cloud, ℓ, models, grid)
-    idxs = ℓ2idxs(ℓ, length(weights), grid)
-    weights .*= idx2norm.(idxs, [ℓ])
+function birth!(weights, cloud, ℓt, models, grid)
+    idxs = ℓ2idxs(ℓt, length(weights), grid)
+    weights .*= idx2norm.(idxs, [ℓt])
     cloud .= idx2state.(idxs, [models], [grid])
 end
 
-function ℓ2idxs(ℓ, N, grid)
+function ℓ2idxs(ℓt, N, grid)
     @unpack Nr, Na, Nf, Nm = grid
-    midxs = argsample(ℓ.m, N, scale = ℓ.Σm)
+    midxs = argsample(ℓt.m, N, scale = ℓt.Σm)
     Nc = counts(midxs, Nm)
     idxs = Vector{Index}(undef, N)
     j = 1
     for m = 1:Nm
-        @views ridxs = argsample(grid.r .* ℓ.r[:, m], Nc[m])
-        @views aidxs = argsample(vec(ℓ.a[:, :, m]), Nc[m])
+        @views ridxs = argsample(grid.r .* ℓt.r[:, m], Nc[m])
+        @views aidxs = argsample(vec(ℓt.a[:, :, m]), Nc[m])
         aidxs = Tuple.(CartesianIndices((Nf, Na))[aidxs])
         shuffle!(ridxs)
         shuffle!(aidxs)
@@ -45,11 +45,11 @@ function ℓ2idxs(ℓ, N, grid)
     shuffle!(idxs)
 end
 
-function idx2norm(idx, ℓ)
+function idx2norm(idx, ℓt)
     if !iszero(idx.m)
-        return ℓ.Σm / ℓ.r[idx.r, idx.m] / ℓ.a[idx.f, idx.a, idx.m]
+        return ℓt.Σm / ℓt.r[idx.r, idx.m] / ℓt.a[idx.f, idx.a, idx.m]
     else
-        return ℓ.Σm
+        return ℓt.Σm
     end
 end
 

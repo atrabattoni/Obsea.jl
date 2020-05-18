@@ -1,6 +1,6 @@
-function update!(weights, cloud, ℓ, models, grid)
+function update!(weights, cloud, ℓt, models, grid)
     @unpack pd = models
-    ℓr, ℓa = make(ℓ, grid)
+    ℓr, ℓa = make(ℓt, grid)
     mask = .!isdead.(cloud)
     @views weights = weights[mask]
     @views cloud = cloud[mask]
@@ -12,9 +12,9 @@ function update!(weights, cloud, ℓ, models, grid)
     weights ./= sum(weights)
 end
 
-function make(ℓ, grid)
-    ℓr = interpolate!(ℓ.r, (BSpline(Linear()), NoInterp()))
-    ℓa = interpolate!(ℓ.a, (BSpline(Linear()), BSpline(Linear()), NoInterp()))
+function make(ℓt, grid)
+    ℓr = interpolate!(ℓt.r, (BSpline(Linear()), NoInterp()))
+    ℓa = interpolate!(ℓt.a, (BSpline(Linear()), BSpline(Linear()), NoInterp()))
     ℓr = extrapolate(ℓr, 1.0)
     ℓa = extrapolate(ℓa, 1.0)
     ℓr = scale(ℓr, grid2range(grid.r), 1:grid.Nm)
