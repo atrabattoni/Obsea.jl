@@ -1,10 +1,10 @@
 [[model]]
 name = "ship"
-q = 0.1
+q = 0.03
 vmin = 3.0
 vmax = 12.0
-ps = 0.97
-pb = 0.03
+ps = 0.998
+pb = 0.002
 pd = 1.0
 lam = 9.0
 mrl = 0.9

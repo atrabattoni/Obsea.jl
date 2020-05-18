@@ -9,14 +9,14 @@ fs = 50.0
 Np = 1000
 Nfft = 1024
 
-zr = npzread("ceps_test.npy")
-za = npzread("az_test.npy")
-x = npzread("x_test.npy")
-y = npzread("y_test.npy")
-f = npzread("f_test.npy")
+zr = npzread("data/ceps.npy")
+za = npzread("data/az.npy")
+x = npzread("data/x.npy")
+y = npzread("data/y.npy")
+f = npzread("data/f.npy")
 Nt = size(zr, 2)
 
-models, propa, grid = parameters("params_test.toml", fs, Nfft)
+models, propa, grid = parameters("params.toml", fs, Nfft)
 tdoalut = TDOALUT(propa, grid)
 
 ℓr = likelihood(zr, tdoalut, models, grid)

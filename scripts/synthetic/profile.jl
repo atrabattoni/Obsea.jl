@@ -29,7 +29,7 @@ mrl = rand(Nm)
 fs = 50.0
 Np = 10
 Nfft = 1024
-models, propa, grid = parameters("params_test.toml", fs, Nfft)
+models, propa, grid = parameters("params.toml", fs, Nfft)
 
 
 

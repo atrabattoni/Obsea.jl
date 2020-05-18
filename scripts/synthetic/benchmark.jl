@@ -15,13 +15,13 @@ using BenchmarkTools, Profile
 
 ## Load data & parameters
 
-zr = npzread("ceps_test.npy")
-za = npzread("az_test.npy")
+zr = npzread("data/ceps.npy")
+za = npzread("data/az.npy")
 
 fs = 50.0
 Np = 10000
 Nfft = 1024
-models, propa, grid = parameters("params_test.toml", 50.0, 1024)
+models, propa, grid = parameters("params.toml", 50.0, 1024)
 
 
 function precompute(zr, za, models, propa, grid)
