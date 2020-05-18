@@ -27,6 +27,7 @@ tdoalut = TDOALUT(propa, grid)
 ## Initialize
 weights, particles = init(Nt, Np)
 t = 30
+
 ## Iterate
 t += 1
 cloud, prevcloud, ℓt = slice(t, particles, ℓ)

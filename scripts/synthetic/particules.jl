@@ -25,7 +25,7 @@ tdoalut = TDOALUT(propa, grid)
 
 ## Animation
 weights, particles = init(Nt, Np)
-@time anim = @animate for t = 150:Nt
+@time anim = @animate for t = 100:250
     print(t, "/", Nt, "\r")
     cloud, prevcloud, ℓt = slice(t, particles, ℓ)
     predict!(weights, cloud, prevcloud, ℓt, models, grid)
@@ -36,6 +36,6 @@ weights, particles = init(Nt, Np)
     plot!(particles, grid, color = :green, alpha = 0.1)
     scatter!([0], [0], label = "OBS", color = :orange)
 
-    @views resample!(weights, particles[1:t, :], ℓ, models, grid)
+    @views resample!(weights, particles[1:t, :], ℓt, models, grid)
 end
 gif(anim, "anim.gif", fps = 10)

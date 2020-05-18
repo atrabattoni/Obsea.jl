@@ -1,0 +1,26 @@
+[[model]]
+name = "ship"
+q = 0.03
+vmin = 3.0
+vmax = 12.0
+ps = 0.998
+pb = 0.002
+pd = 1.0
+lam = 9.0
+mrl = 0.9
+n = 3
+
+[propagation]
+Nmode = 3
+depth = 4340.0
+celerity = 1502.0
+ic = 27.5
+ib = 77.5
+sigma = [1.0, 2.0, 3.0]
+
+[grid]
+rmax = 30_000.0
+rres = 100.0
+fmin = 11.0
+fmax = 24.0
+ares = 360
