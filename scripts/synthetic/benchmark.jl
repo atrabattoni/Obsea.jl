@@ -23,21 +23,14 @@ fs = 50.0
 Np = 10000
 Nfft = 1024
 models, propa, grid = parameters("params.toml", 50.0, 1024)
+tdoalut = TDOALUT(propa, grid)
 Nt = size(zr, 2)
 
 
-function precompute(zr, za, models, propa, grid)
-    tdoalut = TDOALUT(propa, grid)
-    ℓr = likelihood(zr, tdoalut, models, grid)
-    ℓa = likelihood(za, models, grid)
-    ℓm, ℓΣm = marginalize(ℓr, ℓa, models, grid)
-    return Likelihood(ℓr, ℓa, ℓm, ℓΣm)
-end
-
 println("precompute")
-ℓ = precompute(zr, za, models, propa, grid)
-@btime precompute(zr, za, models, propa, grid)
-@profiler precompute(zr, za, models, propa, grid)
+ℓ = Likelihood(zr, za, tdoalut, models, grid)
+@btime Likelihood(zr, za, tdoalut, models, grid)
+@profiler Likelihood(zr, za, tdoalut, models, grid)
 
 weights, particles = init(Nt, Np)
 

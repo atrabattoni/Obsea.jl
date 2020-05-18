@@ -18,10 +18,7 @@ Nt = size(zr, 2)
 
 models, propa, grid = parameters("params.toml", fs, Nfft)
 tdoalut = TDOALUT(propa, grid)
-ℓr = likelihood(zr, tdoalut, models, grid)
-ℓa = likelihood(za, models, grid)
-ℓm, ℓΣm = marginalize(ℓr, ℓa, models, grid)
-ℓ = Obsea.Likelihood(ℓr, ℓa, ℓm, ℓΣm)
+ℓ = Likelihood(zr, za, tdoalut, models, grid)
 
 ## Animation
 weights, particles = init(Nt, Np)

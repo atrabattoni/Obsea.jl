@@ -25,10 +25,7 @@ za[101:105] .= 3.0 .+ 2π * rand(5) / 36
 
 
 tdoalut = TDOALUT(propa, grid)
-ℓr = likelihood(zr, tdoalut, models, grid)
-ℓa = likelihood(za, models, grid)
-ℓm, ℓΣm = marginalize(ℓr, ℓa, models, grid)
-ℓ = Likelihood(ℓr, ℓa, ℓm, ℓΣm)
+ℓ = Likelihood(zr, za, tdoalut, models, grid)
 
 plot(grid.r, ℓ.r[:, 1])
 heatmap(rad2deg.(grid.a), grid.f, ℓ.a[:, :, 1])

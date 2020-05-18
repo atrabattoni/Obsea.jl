@@ -6,10 +6,7 @@ function track(zr, za, models, propa, grid, Np)
 
     # Precompute
     tdoalut = TDOALUT(propa, grid)
-    ℓr = likelihood(zr, tdoalut, models, grid)
-    ℓa = likelihood(za, models, grid)
-    ℓm, ℓΣm = marginalize(ℓr, ℓa, models, grid)
-    ℓ = Likelihood(ℓr, ℓa, ℓm, ℓΣm)
+    ℓ = Likelihood(zr, za, tdoalut, models, grid)
 
     # Track
     weights, particles = init(Nt, Np)

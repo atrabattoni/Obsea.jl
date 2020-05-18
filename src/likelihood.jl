@@ -103,6 +103,12 @@ struct Likelihood
     m::Array{Float64,2}
     Σm::Vector{Float64}
 end
+function Likelihood(zr, za, tdoalut, models, grid)
+    ℓr = likelihood(zr, tdoalut, models, grid)
+    ℓa = likelihood(za, models, grid)
+    ℓm, ℓΣm = marginalize(ℓr, ℓa, models, grid)
+    return Likelihood(ℓr, ℓa, ℓm, ℓΣm)
+end
 
 """
     LikelihoodSlice(ℓtr, ℓta, ℓtm, ℓtΣm)

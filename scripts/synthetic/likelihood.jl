@@ -21,10 +21,7 @@ models, propa, grid = parameters("params.toml", fs, Nfft)
 tdoalut = TDOALUT(propa, grid)
 
 ## Precompute likelihood
-ℓr = likelihood(zr, tdoalut, models, grid)
-ℓa = likelihood(za, models, grid)
-ℓm, ℓΣm = marginalize(ℓr, ℓa, models, grid)
-ℓ = Obsea.Likelihood(ℓr, ℓa, ℓm, ℓΣm)
+ℓ = Likelihood(zr, za, tdoalut, models, grid)
 
 ## Plot raw data
 heatmap(collect(1:Nt), grid.τ, zr; color = :viridis)
