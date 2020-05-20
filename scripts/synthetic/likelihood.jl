@@ -28,9 +28,11 @@ heatmap(collect(1:Nt), grid.τ, zr; color = :viridis)
 heatmap(collect(1:Nt), grid.f, za; color = :phase)
 
 ## Plot likelihood
-heatmap(1:Nt, grid.r / 1000, log.(ℓr[:, :, 1]))
-heatmap(1:Nt, rad2deg.(grid.a), log.(sum(ℓa, dims = 1)[1, :, :, 1]))
-
+heatmap(1:Nt, grid.r / 1000, log.(ℓ.r[:, :, 1]))
+heatmap(1:Nt, rad2deg.(grid.a), log.(sum(ℓ.a, dims = 1)[1, :, :, 1]))
+scatter(log.(ℓ.m))
+scatter(log.(ℓ.Σm))
+scatter(ℓ.m ./ ℓ.Σm)
 ## Animation
 xgrid = -30000.0:500.0:30000.0
 cloud = StructArray(Obsea.State(1, 15.0, x, y, NaN, NaN) for y in xgrid, x in xgrid)
